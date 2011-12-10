@@ -38,6 +38,16 @@ class MarkdownHelper extends AppHelper {
     }
 
     protected function parseYamlFrontMatter($string) {
+        if (!$this->yaml) {
+            App::import('Vendor', 'sfYamlParser', array('file' => 'yaml/lib/sfYamlParser.php'));
+            $this->yaml = new sfYamlParser();
+        }
+
+        try {
+            $values = $this->yaml->parse($string);
+        } catch (InvalidArgumentException $e) {
+            echo "Unable to parse the YAML string: " . $e->getMessage();
+        }
     }
 
 }
