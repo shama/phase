@@ -30,18 +30,11 @@
 class PagesController extends AppController {
 
 /**
- * Controller name
+ * Look for markdown files
  *
  * @var string
  */
-	public $name = 'Pages';
-
-/**
- * Default helper
- *
- * @var array
- */
-	public $helpers = array('Html');
+    public $ext = '.md';
 
 /**
  * This controller does not use a model
@@ -49,6 +42,20 @@ class PagesController extends AppController {
  * @var array
  */
 	public $uses = array();
+
+/**
+ * viewPath
+ *
+ * @var string
+ */
+	public $viewPath = '../Contents';
+
+/**
+ * User the application view class
+ *
+ * @var string
+ */
+    public $viewClass = 'Phase';
 
 /**
  * Displays a view
@@ -73,7 +80,12 @@ class PagesController extends AppController {
 		if (!empty($path[$count - 1])) {
 			$title_for_layout = Inflector::humanize($path[$count - 1]);
 		}
+
+        $last = end($path);
+        if (substr($last, -5) === '.html') {
+            $path[count($path) -1] = substr($last, 0, -5);
+        }
 		$this->set(compact('page', 'subpage', 'title_for_layout'));
-		$this->render(implode('/', $path));
+		$this->render(implode('-', $path));
 	}
 }

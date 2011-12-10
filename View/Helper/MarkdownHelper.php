@@ -7,7 +7,7 @@ class MarkdownHelper extends AppHelper {
     public $settings = array();
 
     protected $defaultSettings = array(
-        'run' => 'afterLayout'
+        'run' => 'afterRender'
     );
 
 	public function __construct(View $View, $settings = array()) {
@@ -15,18 +15,19 @@ class MarkdownHelper extends AppHelper {
         return parent::__construct($View, $settings);
     }
 
-    public function beforeLayout($layoutFile) {
-        if ($this->settings['run'] !== 'beforeLayout') {
+    public function afterRender($filename) {
+        if ($this->settings['run'] !== 'afterRender') {
             return;
         }
-        $this->output = $this->process($this->output);
-    }
 
-    public function afterLayout($layoutFileName) {
-        if ($this->settings['run'] !== 'afterLayout') {
-            return;
+        if (strpos($this->_View->output, '---') === 0) {
+            preg_match('@^---(.*)\n---\n@ms', $this->_View->output, $match);
+            if ($match) {
+                $this->_View->output = substr($this->_View->output, strlen($match[0]));
+                $this->parseYamlFrontMatter($match[1]);
+            }
         }
-        $this->output = $this->process($this->output);
+        $this->_View->output = $this->process($this->_View->output);
     }
 
     public function process($input = '') {
@@ -34,6 +35,9 @@ class MarkdownHelper extends AppHelper {
             App::import('Vendor', 'Markdown/Markdown');
         }
         return Markdown($input);
+    }
+
+    protected function parseYamlFrontMatter($string) {
     }
 
 }
