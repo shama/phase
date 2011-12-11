@@ -20,5 +20,5 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-Router::connect('/', array('controller' => 'posts', 'action' => 'index'));
+Router::connect('/', array('controller' => 'posts', 'action' => 'home'));
 Router::connect('/*', array('controller' => 'posts', 'action' => 'view'));

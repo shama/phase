@@ -36,19 +36,38 @@ class PostsController extends AppController {
         return parent::__construct($request, $response);
     }
 
-    public function index() {
+    public function home() {
         $extLength = strlen($this->ext);
 
         App::uses('Folder', 'Utility');
         $folder = new Folder($this->viewPath);
         $contents = $folder->read();
+
+        $posts = array();
         foreach($contents[1] as $i => $file) {
             if ($file[0] === '.' || substr($file, - $extLength) !== $this->ext) {
                 unset($contents[1][$i]);
+                continue;
             }
+            $date = mktime(
+                0,
+                0,
+                0,
+                substr($file, 5, 2),
+                substr($file, 8, 2),
+                substr($file, 0, 4)
+            );
+            $post = array(
+                'url' => '/' . substr($file, 0, -3),
+                'title' => str_replace('-', ' ', substr($file, 11, -3)),
+                'date' => $date
+            );
+            $posts[] = $post;
         }
+        $latest = end($posts);
+        $posts = array_slice(array_reverse($posts), 1, 6);
 
-        $this->set('posts', array_reverse($contents[1]));
+        $this->set(compact('posts', 'latest'));
     }
 
 /**
