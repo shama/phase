@@ -32,6 +32,9 @@ class YFMHelper extends AppHelper {
             $parsed['title_for_layout'] = $parsed['meta_title'];
             unset($parsed['meta_title']);
         }
+        if(!empty($parsed['layout'])) {
+            $this->_View->layout = $parsed['layout'];
+        }
         $this->_View->set($parsed);
         return $parsed;
     }
