@@ -21,4 +21,5 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 Router::connect('/', array('controller' => 'posts', 'action' => 'home'));
+Router::connect('/archives.html', array('controller' => 'posts', 'action' => 'archives'));
 Router::connect('/*', array('controller' => 'posts', 'action' => 'view'));
