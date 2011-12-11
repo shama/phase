@@ -31,11 +31,16 @@ class PostsController extends AppController {
  */
     public $viewClass = 'Phase';
 
+    public function __construct($request = null, $response = null) {
+        $this->viewPath = Configure::read('ContentsFolder');
+        return parent::__construct($request, $response);
+    }
+
     public function index() {
         $extLength = strlen($this->ext);
 
         App::uses('Folder', 'Utility');
-        $folder = new Folder('../Contents');
+        $folder = new Folder($this->viewPath);
         $contents = $folder->read();
         foreach($contents[1] as $i => $file) {
             if ($file[0] === '.' || substr($file, - $extLength) !== $this->ext) {
@@ -55,8 +60,6 @@ class PostsController extends AppController {
 		if (!$first) {
 			$this->redirect('/');
 		}
-
-        $this->viewPath = '../Contents';
 
 		$path = func_get_args();
 		$count = count($path);
