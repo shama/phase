@@ -32,7 +32,6 @@ class PostHelper extends AppHelper {
         $return = $this->metaData($file);
         $contents = file_get_contents(APP . 'View' . DS . Configure::read('ContentsFolder') . DS . $file);
         $parsed = $this->YFM->parse($contents);
-        print_r($parsed);
         $return += $parsed;
         if (empty($return['intro'])) {
             $return['intro'] = substr($return['contents'], 0, strpos($return['contents'], "\n", 1));

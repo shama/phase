@@ -59,12 +59,12 @@ class YFMHelper extends AppHelper {
 
     public function parse($input = '') {
         if (strpos($input, '---') !== 0) {
-            return;
+            return array('contents' => $input);
         }
 
         preg_match('@^---(.*)\n---\n@ms', $input, $match);
         if (!$match) {
-            return;
+            return array('contents' => $input);
         }
 
         if (!$this->yaml) {
