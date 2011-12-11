@@ -20,13 +20,6 @@ class MarkdownHelper extends AppHelper {
             return;
         }
 
-        if (strpos($this->_View->output, '---') === 0) {
-            preg_match('@^---(.*)\n---\n@ms', $this->_View->output, $match);
-            if ($match) {
-                $this->_View->output = substr($this->_View->output, strlen($match[0]));
-                $this->parseYamlFrontMatter($match[1]);
-            }
-        }
         $this->_View->output = $this->process($this->_View->output);
     }
 
@@ -36,18 +29,4 @@ class MarkdownHelper extends AppHelper {
         }
         return Markdown($input);
     }
-
-    protected function parseYamlFrontMatter($string) {
-        if (!$this->yaml) {
-            App::import('Vendor', 'sfYamlParser', array('file' => 'yaml/lib/sfYamlParser.php'));
-            $this->yaml = new sfYamlParser();
-        }
-
-        try {
-            $values = $this->yaml->parse($string);
-        } catch (InvalidArgumentException $e) {
-            echo "Unable to parse the YAML string: " . $e->getMessage();
-        }
-    }
-
 }
