@@ -28,10 +28,28 @@ class YFMHelper extends AppHelper {
 
     public function process($input = '') {
         $parsed = $this->parse($input);
-        if (!empty($parsed['meta_title'])) {
-            $parsed['title_for_layout'] = $parsed['meta_title'];
-            unset($parsed['meta_title']);
+
+        if (!empty($parsed['title'])) {
+            $parsed['title_for_layout'] = $parsed['title'];
+            if (empty($parsed['meta_title'])) {
+                $parsed['meta_title'] = $parsed['title'];
+            }
         }
+
+        if (empty($parsed['meta_description']) && !empty($parsed['description'])) {
+            $parsed['meta_description'] = $parsed['description'];
+        }
+
+        if (empty($parsed['meta_keywords']) && !empty($parsed['keywords'])) {
+            $parsed['meta_keywords'] = $parsed['keywords'];
+        }
+
+        if (empty($parsed['meta_author']) && !empty($parsed['author'])) {
+            $parsed['meta_author'] = $parsed['author'];
+        }
+
+
+
         if(!empty($parsed['layout'])) {
             $this->_View->layout = $parsed['layout'];
         }

@@ -10,18 +10,21 @@ class PostHelper extends AppHelper {
     );
 
     public function metaData($file) {
-        $date = mktime(
-            0,
-            0,
-            0,
-            substr($file, 5, 2),
-            substr($file, 8, 2),
-            substr($file, 0, 4)
-        );
+        $year = substr($file, 0, 4);
+        $month = substr($file, 5, 2);
+        $day = substr($file, 8, 2);
+        $slug = substr($file, 11, -3);
+        $date = mktime(0, 0, 0, $month, $day, $year);
+
         return array(
-            'url' => '/' . substr($file, 0, -3),
-            'title' => str_replace('-', ' ', substr($file, 11, -3)),
-            'date' => $date
+            'file' => $file,
+            'title' => str_replace('-', ' ', $slug),
+            'year' => $year,
+            'month' => $month,
+            'day' => $day,
+            'date' => $date,
+            'slug' => $slug,
+            'url' => "/$year/$month/$day/$slug.html"
         );
     }
 

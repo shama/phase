@@ -8,7 +8,7 @@
 <head>
     <meta charset="utf-8">
 
-    <title><?php echo $title_for_layout; ?></title>
+    <title><?php echo $meta_title; ?></title>
 
     <meta name="description" content="<?php echo $meta_description; ?>">
     <meta name="keywords" content="<?php echo $meta_keywords; ?>">
