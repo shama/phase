@@ -18,6 +18,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/screen.css">
+	<link rel="stylesheet" href="/css/syntax.css">
+
+    <link href="<?php echo Configure::read('Phase.rss.url') ?>" rel="alternate" title="<?php echo Configure::read('Phase.rss.title') ?>" type="application/atom+xml">
 
     <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
 
@@ -27,9 +31,19 @@
     <script src="/js/libs/modernizr-2.0.6.min.js"></script>
 </head>
 
-<body>
+<body id="<?php echo $this->name ?>" class="<?php echo $this->action ?>">
+  <div class="site">
+    <div class="title">
+      <a href="/"><?php echo Configure::read('Phase.site.name') ?></a>
+      <a class="extra" href="/">home</a>
+    </div>
+
     <header>
-        <h1><?php echo $title_for_layout ?></h1>
+        <h1 class="title"><?php echo $title_for_layout ?></h1>
+        <h3 class="date"><?php echo $title_for_layout ?></h3>
+        <p class="meta">
+        </p>
+        <a href="#disqus_thread">Show comments</a>
     </header>
 
     <div role="main">
@@ -37,15 +51,26 @@
         <?php echo $content_for_layout; ?>
     </div>
 
-    <footer>
-        <?php echo $this->Html->link(
-                $this->Html->image('cake.power.gif', array('alt'=> __('CakePHP: the rapid development php framework'), 'border' => '0')),
-                'http://www.cakephp.org/',
-                array('target' => '_blank', 'escape' => false)
-            );
-        ?>
-    </footer>
-
+    <div class="footer">
+      <div class="contact">
+        <p>
+          Andy Dawson<br />
+		  andydawson76@<span style="display:none">null</span>gmail.com
+        </p>
+      </div>
+      <div class="contact">
+        <p>
+          <a href="http://github.com/AD7six/">github.com/AD7six</a><br />
+          <a href="http://twitter.com/AD7six/">twitter.com/AD7six</a><br />
+        </p>
+      </div>
+      <div class="rss">
+        <a href="<?php echo Configure::read('Phase.rss.url') ?>">
+          <img src="/img/feed/feed-icon-28x28.png" alt="Subscribe to RSS Feed" />
+        </a>
+      </div>
+    </div>
+  </div>
 
     <!-- JavaScript at the bottom for fast page loading -->
 
@@ -63,11 +88,27 @@
     <!-- Asynchronous Google Analytics snippet. Change UA-XXXXX-X to be your site's ID.
              mathiasbynens.be/notes/async-analytics-snippet -->
     <script>
-        var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+        var _gaq=[['_setAccount','<?php echo Configure::read('Phase.analytics.code') ?>'],['_trackPageview']];
         (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
         g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
         s.parentNode.insertBefore(g,s)}(document,'script'));
     </script>
+
+  <script type="text/javascript">
+    var disqus_shortname = '<?php echo Configure::read('Phase.disqus.shortname') ?>';
+  (function () {
+    var s = document.createElement('script'); s.async = true;
+    s.src = 'http://disqus.com/forums/<?php echo Configure::read('Phase.disqus.shortname') ?>/count.js';
+    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+  }());
+  </script>
+  <script type="text/javascript">
+  (function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = 'http://<?php echo Configure::read('Phase.disqus.shortname') ?>x.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
 
     <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
              chromium.org/developers/how-tos/chrome-frame-getting-started -->
