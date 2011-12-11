@@ -56,10 +56,14 @@ class PostsController extends AppController {
  *
  * @param mixed What page to display
  */
-	public function view($first = '') {
-		if (!$first) {
+	public function view($year = '', $month = '', $day = '') {
+		if (!$year) {
 			$this->redirect('/');
 		}
+
+        if (is_numeric($year) && is_numeric($month) && is_numeric($day)) {
+            $this->set('postDate', mktime(0, 0, 0, $month, $day, $year));
+        }
 
 		$path = func_get_args();
 		$count = count($path);

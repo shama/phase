@@ -40,7 +40,9 @@
 
     <header>
         <h1 class="title"><?php echo $title_for_layout ?></h1>
-        <h3 class="date"><?php echo $title_for_layout ?></h3>
+        <?php if (!empty($postDate)) { ?>
+        <h3 class="date"><?php echo strftime('%e %B, %G', $postDate) ?></h3>
+        <?php } ?>
         <p class="meta">
         </p>
         <a href="#disqus_thread">Show comments</a>
