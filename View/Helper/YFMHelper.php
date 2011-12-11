@@ -28,6 +28,10 @@ class YFMHelper extends AppHelper {
 
     public function process($input = '') {
         $parsed = $this->parse($input);
+        if (!empty($parsed['meta_title'])) {
+            $parsed['title_for_layout'] = $parsed['meta_title'];
+            unset($parsed['meta_title']);
+        }
         $this->_View->set($parsed);
         return $parsed;
     }

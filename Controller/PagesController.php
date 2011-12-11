@@ -66,7 +66,7 @@ class PagesController extends AppController {
         if (substr($last, -5) === '.html') {
             $path[count($path) -1] = substr($last, 0, -5);
         }
-		$this->set(compact('page', 'subpage', 'title_for_layout'));
+
 		$this->render(implode('-', $path));
 	}
 }

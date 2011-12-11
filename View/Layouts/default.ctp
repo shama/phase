@@ -10,8 +10,9 @@
 
     <title><?php echo $title_for_layout; ?></title>
 
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="<?php echo $meta_description; ?>">
+    <meta name="keywords" content="<?php echo $meta_keywords; ?>">
+    <meta name="author" content="<?php echo $meta_author; ?>">
 
     <!-- Mobile viewport optimized: h5bp.com/viewport -->
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -28,8 +29,7 @@
 
 <body>
     <header>
-        <h1><?php echo $this->Html->link(__('CakePHP: the rapid development php framework'), 'http://cakephp.org'); ?></h1>
-
+        <h1><?php echo $title_for_layout ?></h1>
     </header>
 
     <div role="main">
