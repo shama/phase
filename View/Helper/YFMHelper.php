@@ -21,8 +21,8 @@ class YFMHelper extends AppHelper {
         }
 
         $parsed = $this->process($this->_View->output);
-        if ($parsed && array_key_exists('YFMParseRemainder', $parsed)) {
-            $this->_View->output = $parsed['YFMParseRemainder'];
+        if ($parsed && array_key_exists('contents', $parsed)) {
+            $this->_View->output = $parsed['contents'];
         }
     }
 
@@ -92,7 +92,7 @@ class YFMHelper extends AppHelper {
                 $prevKey = $key;
             }
         }
-        $return['YFMParseRemainder'] = substr($input, strlen($match[0]));
+        $return['contents'] = substr($input, strlen($match[0]));
 
         return $return;
     }

@@ -32,11 +32,12 @@ class PostHelper extends AppHelper {
         $return = $this->metaData($file);
         $contents = file_get_contents(APP . 'View' . DS . Configure::read('ContentsFolder') . DS . $file);
         $parsed = $this->YFM->parse($contents);
+        print_r($parsed);
         $return += $parsed;
         if (empty($return['intro'])) {
-            $return['intro'] = substr($return['YFMParseRemainder'], 0, strpos($return['YFMParseRemainder'], "\n", 1));
+            $return['intro'] = substr($return['contents'], 0, strpos($return['contents'], "\n", 1));
             if (strlen($return['intro']) < 200) {
-                $return['intro'] = $this->Text->truncate($return['YFMParseRemainder'], 400);
+                $return['intro'] = $this->Text->truncate($return['contents'], 400);
             }
             $return['intro'] = '<p>' . $return['intro'] . '</p>';
         }
