@@ -1,3 +1,6 @@
 [submodule "Vendor/yaml"]
 	path = Vendor/yaml
 	url = git://github.com/fabpot/yaml.git
+[submodule "Vendor/h5bp"]
+	path = Vendor/h5bp
+	url = git://github.com/h5bp/html5-boilerplate.git
