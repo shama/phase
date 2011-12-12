@@ -38,10 +38,6 @@
       <a class="extra" href="/">home</a>
     </div>
 
-    <header>
-        <h1 class="title"><?php echo $title_for_layout ?></h1>
-    </header>
-
     <div role="main">
         <?php echo $this->Session->flash(); ?>
         <?php echo $content_for_layout; ?>
