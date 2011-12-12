@@ -82,7 +82,10 @@ class BuildShell extends AppShell {
         if (!is_dir($this->outputDir . DS . dirname($url))) {
             mkdir($this->outputDir . DS . dirname($url), 0777, true);
         }
-        file_put_contents($this->outputDir . DS . $url, $out);
+        file_put_contents($this->outputDir . $url, $out);
+        if (substr($url, -5) === '.html') {
+            $this->compressHtml($this->outputDir . $url, $out);
+        }
 
         $urls = array();
         preg_match_all('@(?:src|href)=(["\'])(/[^/]\S+?)(#\S*)?\1@', $out, $matches);
@@ -96,4 +99,9 @@ class BuildShell extends AppShell {
         );
     }
 
+    protected function compressHtml($file, &$out) {
+        $command = "java -jar Vendor/h5bp/build/tools/htmlcompressor-1.4.3.jar --compress-js --compress-css -o $file $file";
+        exec($command);
+        $out = file_get_contents($file);
+    }
 }
