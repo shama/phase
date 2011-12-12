@@ -10,18 +10,18 @@ class BuildShell extends AppShell {
 
     protected $urlStack = array();
 
-	public function getOptionParser() {
-		$parser = new ConsoleOptionParser($this->name);
-		$parser->description(array(
-			__d('phase', 'Generate a static version of the site for deployment'),
-		))->addArgument('output', array(
-			'help' => __d('phase', 'Where to put the generated files'),
-			'required' => false,
-		));
-		return $parser;
-	}
+    public function getOptionParser() {
+        $parser = new ConsoleOptionParser($this->name);
+        $parser->description(array(
+            __d('phase', 'Generate a static version of the site for deployment'),
+        ))->addArgument('output', array(
+            'help' => __d('phase', 'Where to put the generated files'),
+            'required' => false,
+        ));
+        return $parser;
+    }
 
-	public function main() {
+    public function main() {
         exec('rm -rf ' . $this->outputDir);
 
         $this->recurse();
@@ -76,8 +76,8 @@ class BuildShell extends AppShell {
             }
         }
 
-        if (substr($url, -1) === '/') {
-            $url .= 'index.html';
+        if (!preg_match('@\.\w{3,4}$@', $url) === '/') {
+            $url = rtrim($url, '/') . '/index.html';
         }
         if (!is_dir($this->outputDir . DS . dirname($url))) {
             mkdir($this->outputDir . DS . dirname($url), 0777, true);
@@ -100,6 +100,7 @@ class BuildShell extends AppShell {
     }
 
     protected function compressHtml($file, &$out) {
+        $file = escapeshellarg($file);
         $command = "java -jar Vendor/h5bp/build/tools/htmlcompressor-1.4.3.jar --compress-js --compress-css -o $file $file";
         exec($command);
         $out = file_get_contents($file);
