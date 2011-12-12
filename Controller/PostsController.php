@@ -41,7 +41,7 @@ class PostsController extends AppController {
         $extLength = strlen($this->ext);
 
         App::uses('Folder', 'Utility');
-        $folder = new Folder($this->viewPath);
+        $folder = new Folder(APP . 'View' . DS . $this->viewPath);
         $contents = $folder->read();
 
         $posts = array();
