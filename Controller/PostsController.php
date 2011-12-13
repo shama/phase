@@ -33,7 +33,6 @@ class PostsController extends AppController {
     public $viewClass = 'Phase';
 
     public function __construct($request = null, $response = null) {
-        $this->viewPath = Configure::read('ContentsFolder');
         return parent::__construct($request, $response);
     }
 
@@ -41,7 +40,7 @@ class PostsController extends AppController {
         $extLength = strlen($this->ext);
 
         App::uses('Folder', 'Utility');
-        $folder = new Folder(APP . 'View' . DS . $this->viewPath);
+        $folder = new Folder(Configure::read('ContentsFolder') . DS . 'Posts');
         $contents = $folder->read();
 
         $posts = array();
@@ -62,7 +61,7 @@ class PostsController extends AppController {
         $extLength = strlen($this->ext);
 
         App::uses('Folder', 'Utility');
-        $folder = new Folder(APP . 'View' . DS . $this->viewPath);
+        $folder = new Folder(Configure::read('ContentsFolder') . DS . 'Posts');
         $contents = $folder->read();
 
         $posts = array();

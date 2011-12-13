@@ -28,9 +28,12 @@ class PostHelper extends AppHelper {
         );
     }
 
-    public function data($file) {
+    public function data($file, $type = 'Posts') {
+        if (!$file) {
+            return;
+        }
         $return = $this->metaData($file);
-        $contents = file_get_contents(APP . 'View' . DS . Configure::read('ContentsFolder') . DS . $file);
+        $contents = file_get_contents(Configure::read('ContentsFolder') . DS . $type . DS . $file);
         $parsed = $this->YFM->parse($contents);
         $return += $parsed;
         if (empty($return['intro'])) {

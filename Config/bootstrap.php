@@ -24,10 +24,10 @@
  */
 
 /**
- * The folder where contents are to be found - RELATIVE to app/View/
+ * Absolute path to blog contents (posts, layouts etc)
  */
 if (!Configure::read('ContentsFolder')) {
-    Configure::write('ContentsFolder', '..' . DS . 'Contents');
+    Configure::write('ContentsFolder', APP . 'Contents');
 }
 
 // Setup a 'default' cache configuration for use in the application.
@@ -51,6 +51,9 @@ Cache::config('default', array('engine' => 'File'));
  * ));
  *
  */
+    App::build(array(
+        'View' => array(APP . 'Contents/'),
+    ));
 
 /**
  * Custom Inflector rules, can be set to correctly pluralize or singularize table, model, controller names or whatever other
