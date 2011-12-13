@@ -2,16 +2,44 @@
 
 App::uses('AppShell', 'Console/Command');
 
+/**
+ * BuildShell
+ *
+ * Writes a static version of your site for deployment
+ */
 class BuildShell extends AppShell {
 
+    /**
+     * outputDir
+     *
+     * Where to write the static version of this application
+     */
     protected $outputDir = 'publish';
 
+    /**
+     * fourOFours
+     *
+     * Array of urls that returned errors while crawling
+     */
     protected $fourOFours = array();
 
+    /**
+     * concatenatedStack
+     *
+     * Array of id => hashs used to know which asset packets have already been processed
+     */
     protected $concatenatedStack = array();
 
+    /**
+     * urlStack
+     *
+     * The urls to crawl
+     */
     protected $urlStack = array();
 
+    /**
+     * getOptionParser
+     */
     public function getOptionParser() {
         $parser = new ConsoleOptionParser($this->name);
         $parser->description(array(
@@ -23,8 +51,12 @@ class BuildShell extends AppShell {
         return $parser;
     }
 
+    /**
+     * Wipe the output diretory and repopulate it using what you can see
+     * browsing your development install as the input
+     */
     public function main() {
-        exec('rm -rf ' . $this->outputDir);
+        exec('rm -rf ' . escapeshellarg($this->outputDir));
         mkdir($this->outputDir . '/css', 0777, true);
         mkdir($this->outputDir . '/img', 0777, true);
         mkdir($this->outputDir . '/js', 0777, true);
@@ -39,6 +71,15 @@ class BuildShell extends AppShell {
         }
     }
 
+    /**
+     * recurse
+     *
+     * Starting with a few seed urls - crawl the cake application following all the urls
+     * that can be found. for everything that's linked to compress it and write out to the
+     * output folder.
+     *
+     * Track and report 404s so that they can be corrected
+     */
     protected function recurse() {
         $this->urlStack[] = '/';
         $this->urlStack[] = '/robots.txt';
@@ -67,6 +108,15 @@ class BuildShell extends AppShell {
         }
     }
 
+    /**
+     * processUrl
+     *
+     * Request the url from the application, and if it's html, css or js minify
+     * the contents.
+     * Write the contents to the equivalent url/location in the output folder
+     *
+     * @param mixed $url
+     */
     protected function processUrl($url) {
         $this->out("Processing $url");
 
@@ -85,6 +135,10 @@ class BuildShell extends AppShell {
             $this->concatenateCss($contents);
             $this->concatenateScripts($contents);
             $this->compressHtml($contents);
+        } elseif (substr($url, -3) === '.js') {
+            $this->compressJs($contents);
+        } elseif (substr($url, -4) === '.css') {
+            $this->compressCss($contents);
         }
         file_put_contents($this->outputDir . $url, $contents);
 
@@ -100,6 +154,15 @@ class BuildShell extends AppShell {
         );
     }
 
+    /**
+     * compressCss
+     *
+     * if a filename is passed - it is used as the input, otherwise the contents are used
+     * In both cases the contents are updated
+     *
+     * @param mixed $contents
+     * @param string $file
+     */
     protected function compressCss(&$contents, $file = '') {
         if (!$file) {
             $file = '/tmp/compressthis.css';
@@ -110,6 +173,15 @@ class BuildShell extends AppShell {
         $contents = file_get_contents($file);
     }
 
+    /**
+     * compressHtml
+     *
+     * if a filename is passed - it is used as the input, otherwise the contents are used
+     * In both cases the contents are updated
+     *
+     * @param string $contents
+     * @param string $file
+     */
     protected function compressHtml(&$contents, $file = '') {
         if (!$file) {
             $file = '/tmp/compressthis.html';
@@ -120,6 +192,15 @@ class BuildShell extends AppShell {
         $contents = file_get_contents($file);
     }
 
+    /**
+     * compressJs
+     *
+     * if a filename is passed - it is used as the input, otherwise the contents are used
+     * In both cases the contents are updated
+     *
+     * @param string $contents
+     * @param string $file
+     */
     protected function compressJs(&$contents, $file = '') {
         if (!$file) {
             $file = '/tmp/compressthis.js';
@@ -130,9 +211,19 @@ class BuildShell extends AppShell {
         $contents = file_get_contents($file);
     }
 
+    /**
+     * concatenateCss
+     *
+     * Parse out any local stylesheed links
+     *      <link rel="stylesheet" href="/something.css">
+     *
+     * And replace all matches with a single concatenated and minified css file
+     *
+     * @param mixed $html
+     */
     protected function concatenateCss(&$html) {
         $copy = preg_replace('@<!--.*?-->@s', '', $html);
-        preg_match_all('@<link rel="stylesheet" href="(/[^/].*?)">@', $copy, $matches);
+        preg_match_all('@<link rel="stylesheet" href="(/[^/].*?\.css)">@', $copy, $matches);
         if (!$matches) {
             return;
         }
@@ -161,9 +252,20 @@ class BuildShell extends AppShell {
         }
     }
 
+    /**
+     * concatenateScripts
+     *
+     * Parse out any local scripts which follow the specific format of:
+     *      <script defer src="/something.js"></script>
+     *
+     * And replace all matches with a single concatenated and minified js file
+     * This is intended/designed for the same scripts appearing in all requests
+     *
+     * @param string $html
+     */
     protected function concatenateScripts(&$html) {
         $copy = preg_replace('@<!--.*?-->@s', '', $html);
-        preg_match_all('@<script defer src="(/[^/].*?)"></script>@', $copy, $matches);
+        preg_match_all('@<script defer src="(/[^/].*?\.js)"></script>@', $copy, $matches);
         if (!$matches) {
             return;
         }
@@ -192,7 +294,14 @@ class BuildShell extends AppShell {
         }
     }
 
-    protected function getContents($url) {
+    /**
+     * getContents
+     *
+     * Simulate requesting the url with a browser - checks the webroot and then the app
+     *
+     * @param string $url
+     */
+    protected function getContents($url = '/') {
         $webFile = WWW_ROOT . substr($url, 1);
         if (file_exists($webFile) && is_file($webFile)) {
             $contents = file_get_contents(WWW_ROOT . $url);
