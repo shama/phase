@@ -27,7 +27,7 @@
  * Absolute path to blog contents (posts, layouts etc)
  */
 if (!Configure::read('PhaseViews')) {
-    Configure::write('PhaseViews', APP . 'Contents' . DS . 'Views' . DS);
+    Configure::write('PhaseViews', APP . 'Site' . DS . 'Views' . DS);
 }
 if (!Configure::read('PhasePosts')) {
     Configure::write('PhasePosts', Configure::read('PhaseViews') . 'Posts' . DS);

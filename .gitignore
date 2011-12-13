@@ -39,7 +39,7 @@ dwsync.xml
 Config/core.php
 tmp/*
 
-# Contents should be a seperate repo, publish is the folder to upload
-Contents/*
+# Site contents should be a seperate repo, publish is the folder to upload
+Site/*
 publish/*
 webroot/*
