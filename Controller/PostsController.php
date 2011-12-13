@@ -40,7 +40,7 @@ class PostsController extends AppController {
         $extLength = strlen($this->ext);
 
         App::uses('Folder', 'Utility');
-        $folder = new Folder(Configure::read('ContentsFolder') . DS . 'Posts');
+        $folder = new Folder(Configure::read('PhasePosts'));
         $contents = $folder->read();
 
         $posts = array();
@@ -61,7 +61,7 @@ class PostsController extends AppController {
         $extLength = strlen($this->ext);
 
         App::uses('Folder', 'Utility');
-        $folder = new Folder(Configure::read('ContentsFolder') . DS . 'Posts');
+        $folder = new Folder(Configure::read('PhasePosts'));
         $contents = $folder->read();
 
         $posts = array();

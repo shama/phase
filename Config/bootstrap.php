@@ -26,8 +26,11 @@
 /**
  * Absolute path to blog contents (posts, layouts etc)
  */
-if (!Configure::read('ContentsFolder')) {
-    Configure::write('ContentsFolder', APP . 'Contents');
+if (!Configure::read('PhaseViews')) {
+    Configure::write('PhaseViews', APP . 'Contents' . DS . 'Views' . DS);
+}
+if (!Configure::read('PhasePosts')) {
+    Configure::write('PhasePosts', Configure::read('PhaseViews') . 'Posts' . DS);
 }
 
 // Setup a 'default' cache configuration for use in the application.
@@ -52,7 +55,7 @@ Cache::config('default', array('engine' => 'File'));
  *
  */
     App::build(array(
-        'View' => array(APP . 'Contents/'),
+        'View' => array(Configure::read('PhaseViews')),
     ));
 
 /**

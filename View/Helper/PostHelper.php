@@ -33,7 +33,11 @@ class PostHelper extends AppHelper {
             return;
         }
         $return = $this->metaData($file);
-        $contents = file_get_contents(Configure::read('ContentsFolder') . DS . $type . DS . $file);
+        if ($type === 'Posts') {
+            $contents = file_get_contents(Configure::read('PhasePosts') . $file);
+        } else  {
+            $contents = file_get_contents(Configure::read('PhaseViews') . $type . DS . $file);
+        }
         $parsed = $this->YFM->parse($contents);
         $return += $parsed;
         if (empty($return['intro'])) {
