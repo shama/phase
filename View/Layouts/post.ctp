@@ -53,26 +53,7 @@
         <?php echo $content_for_layout; ?>
     </div>
 
-    <div class="footer">
-      <div class="contact">
-        <p>
-          Andy Dawson<br />
-		  andydawson76@<span style="display:none">null</span>gmail.com
-        </p>
-      </div>
-      <div class="contact">
-        <p>
-          <a href="http://github.com/AD7six/">github.com/AD7six</a><br />
-          <a href="http://twitter.com/AD7six/">twitter.com/AD7six</a><br />
-        </p>
-      </div>
-      <div class="rss">
-        <a href="<?php echo Configure::read('Phase.rss.url') ?>">
-          <img src="/img/feed/feed-icon-28x28.png" alt="Subscribe to RSS Feed" />
-        </a>
-      </div>
-    </div>
-  </div>
+    <?php echo $this->element('footer') ?>
 
     <!-- JavaScript at the bottom for fast page loading -->
 

@@ -43,26 +43,7 @@
         <?php echo $content_for_layout; ?>
     </div>
 
-    <div class="footer">
-      <div class="contact">
-        <p>
-          <?php echo Configure::read('Phase.user.name') ?><br />
-          <?php echo Configure::read('Phase.user.email') ?>
-        </p>
-      </div>
-      <div class="contact">
-        <p>
-          <a href="http://github.com/<?php echo Configure::read('Phase.user.github') ?>/">github.com/<?php echo Configure::read('Phase.user.github') ?></a><br />
-          <a href="http://twitter.com/<?php echo Configure::read('Phase.user.twitter') ?>/">twitter.com/<?php echo Configure::read('Phase.user.twitter') ?></a><br />
-        </p>
-      </div>
-      <div class="rss">
-        <a href="<?php echo Configure::read('Phase.rss.url') ?>">
-          <img src="/img/feed/feed-icon-28x28.png" alt="Subscribe to RSS Feed" />
-        </a>
-      </div>
-    </div>
-  </div>
+    <?php echo $this->element('footer') ?>
 
     <!-- JavaScript at the bottom for fast page loading -->
 
