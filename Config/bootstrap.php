@@ -24,13 +24,19 @@
  */
 
 /**
- * Absolute path to blog contents (posts, layouts etc)
+ * Absolute paths to where things are
  */
+if (!Configure::read('PhaseRoot')) {
+    Configure::write('PhaseRoot', APP . 'Site' . DS);
+}
 if (!Configure::read('PhaseViews')) {
-    Configure::write('PhaseViews', APP . 'Site' . DS . 'Views' . DS);
+    Configure::write('PhaseViews', Configure::read('PhaseRoot') . 'Views' . DS);
 }
 if (!Configure::read('PhasePosts')) {
     Configure::write('PhasePosts', Configure::read('PhaseViews') . 'Posts' . DS);
+}
+if (!Configure::read('PhaseWebroot')) {
+    Configure::write('PhaseWebroot', Configure::read('PhaseRoot') . 'webroot' . DS);
 }
 
 // Setup a 'default' cache configuration for use in the application.

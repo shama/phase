@@ -46,14 +46,14 @@
     <div class="footer">
       <div class="contact">
         <p>
-          Andy Dawson<br />
-		  andydawson76@<span style="display:none">null</span>gmail.com
+          <?php echo Configure::read('Phase.user.name') ?><br />
+          <?php echo Configure::read('Phase.user.email') ?>
         </p>
       </div>
       <div class="contact">
         <p>
-          <a href="http://github.com/AD7six/">github.com/AD7six</a><br />
-          <a href="http://twitter.com/AD7six/">twitter.com/AD7six</a><br />
+          <a href="http://github.com/<?php echo Configure::read('Phase.user.github') ?>/">github.com/<?php echo Configure::read('Phase.user.github') ?></a><br />
+          <a href="http://twitter.com/<?php echo Configure::read('Phase.user.twitter') ?>/">twitter.com/<?php echo Configure::read('Phase.user.twitter') ?></a><br />
         </p>
       </div>
       <div class="rss">

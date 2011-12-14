@@ -1,22 +1,9 @@
 <?php
 
 App::uses('AppController', 'Controller');
+App::uses('Folder', 'Utility');
 
 class PostsController extends AppController {
-
-/**
- * Look for markdown files
- *
- * @var string
- */
-    public $ext = '.md';
-
-    public $helpers = array(
-        'Html',
-        'YFM',
-        'Markdown',
-        'Post'
-    );
 
 /**
  * This controller does not use a model
@@ -39,7 +26,6 @@ class PostsController extends AppController {
     public function archives() {
         $extLength = strlen($this->ext);
 
-        App::uses('Folder', 'Utility');
         $folder = new Folder(Configure::read('PhasePosts'));
         $contents = $folder->read();
 
@@ -60,7 +46,6 @@ class PostsController extends AppController {
     public function home() {
         $extLength = strlen($this->ext);
 
-        App::uses('Folder', 'Utility');
         $folder = new Folder(Configure::read('PhasePosts'));
         $contents = $folder->read();
 

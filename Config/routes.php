@@ -20,6 +20,14 @@
  * @since         CakePHP(tm) v 0.2.9
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-Router::connect('/', array('controller' => 'posts', 'action' => 'home'));
-Router::connect('/archives.html', array('controller' => 'posts', 'action' => 'archives'));
-Router::connect('/*', array('controller' => 'posts', 'action' => 'view'));
+
+Router::connect('/phase/about', array('controller' => 'installer', 'action' => 'about'));
+if (!is_dir(Configure::read('PhaseRoot'))) {
+    Router::connect('/*', array('controller' => 'installer', 'action' => 'about'));
+    Router::connect('/go', array('controller' => 'installer', 'action' => 'go'));
+} else {
+    Router::connect('/', array('controller' => 'posts', 'action' => 'home'));
+    Router::connect('/archives.html', array('controller' => 'posts', 'action' => 'archives'));
+    Router::connect('/*', array('controller' => 'posts', 'action' => 'view'));
+}
+
