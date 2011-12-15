@@ -68,25 +68,23 @@ class PostsController extends AppController {
 /**
  * View a single post
  *
- * @param mixed What page to display
+ * @param string $year
+ * @param string $month
+ * @param string $day
+ * @param string $slug
  */
-	public function viewDated($year = '', $month = '', $day = '') {
+	public function viewDated($year = '', $month = '', $day = '', $slug = '') {
 		if (!$year) {
 			$this->redirect('/');
 		}
 
-        if (is_numeric($year) && is_numeric($month) && is_numeric($day)) {
-            $this->set('postDate', mktime(0, 0, 0, $month, $day, $year));
+        $this->set('postDate', mktime(0, 0, 0, $month, $day, $year));
+
+        if (substr($slug, -5) === '.html') {
+            $slug = substr($slug, 0, -5);
         }
 
-		$path = func_get_args();
-		$count = count($path);
-        $last = end($path);
-        if (substr($last, -5) === '.html') {
-            $path[count($path) -1] = substr($last, 0, -5);
-        }
-
-		$this->render(implode('-', $path));
+		$this->render("$year-$month-$day-$slug");
 	}
 
 /**

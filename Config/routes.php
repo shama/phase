@@ -28,6 +28,11 @@ if (!is_dir(Configure::read('PhaseRoot'))) {
 } else {
     Router::connect('/', array('controller' => 'posts', 'action' => 'home'));
     Router::connect('/archives.html', array('controller' => 'posts', 'action' => 'archives'));
+    Router::connect(
+        '/:year/:month/:day/:slug',
+        array('controller' => 'posts', 'action' => 'viewDated'),
+        array('pass' => array('year', 'month', 'day','slug'))
+    );
     Router::connect('/*', array('controller' => 'posts', 'action' => 'view'));
 }
 
