@@ -23,7 +23,7 @@ class AppController extends Controller {
         'Session'
     );
 
-    function beforeRender() {
+    public function beforeRender() {
         $meta_description = $meta_keywords = $meta_author = '';
 		$this->set(compact('meta_description', 'meta_keywords', 'meta_author'));
     }
