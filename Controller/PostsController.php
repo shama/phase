@@ -70,7 +70,7 @@ class PostsController extends AppController {
  *
  * @param mixed What page to display
  */
-	public function view($year = '', $month = '', $day = '') {
+	public function viewDated($year = '', $month = '', $day = '') {
 		if (!$year) {
 			$this->redirect('/');
 		}
@@ -80,6 +80,26 @@ class PostsController extends AppController {
         }
 
 		$path = func_get_args();
+		$count = count($path);
+        $last = end($path);
+        if (substr($last, -5) === '.html') {
+            $path[count($path) -1] = substr($last, 0, -5);
+        }
+
+		$this->render(implode('-', $path));
+	}
+
+/**
+ * View a something in the posts folder
+ *
+ * @param mixed What page to display
+ */
+	public function view() {
+		$path = func_get_args();
+		if (!$path) {
+			$this->redirect('/');
+		}
+
 		$count = count($path);
         $last = end($path);
         if (substr($last, -5) === '.html') {
