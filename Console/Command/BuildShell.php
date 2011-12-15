@@ -1,6 +1,7 @@
 <?php
 
 App::uses('AppShell', 'Console/Command');
+App::uses('Folder', 'Utility');
 
 /**
  * BuildShell
@@ -61,6 +62,15 @@ class BuildShell extends AppShell {
         mkdir($this->outputDir . '/img', 0777, true);
         mkdir($this->outputDir . '/js', 0777, true);
 
+        $root = Configure::read('PhaseWebroot');
+        $offset = strlen($root) - 1;
+        $folder = new Folder($root);
+        $files = $folder->findRecursive();
+        foreach($files as $file) {
+            $url = substr($file, $offset);
+            $this->processUrl($url);
+        }
+
         $this->recurse();
 
         if ($this->fourOFours) {
@@ -81,6 +91,7 @@ class BuildShell extends AppShell {
      * Track and report 404s so that they can be corrected
      */
     protected function recurse() {
+        $this->urlStack[] = '/.htaccess';
         $this->urlStack[] = '/';
         $this->urlStack[] = '/robots.txt';
         $this->urlStack[] = '/favicon.ico';
@@ -302,19 +313,23 @@ class BuildShell extends AppShell {
      * @param string $url
      */
     protected function getContents($url = '/') {
-        $webFile = WWW_ROOT . substr($url, 1);
-        if (file_exists($webFile) && is_file($webFile)) {
-            $contents = file_get_contents(WWW_ROOT . $url);
-        } else {
-            try {
-                $contents = $this->requestAction($url, array('return', 'bare' => false));
-            } catch(Exception $e) {
-                $this->fourOFours[$url] = array();
-                return;
-            }
+        $root = rtrim(Configure::read('PhaseWebroot'), DS);
+        $rootFile = $root . $url;
+        if (file_exists($rootFile) && is_file($rootFile)) {
+            return file_get_contents($root . $url);
         }
 
-        return $contents;
+        $webFile = WWW_ROOT . substr($url, 1);
+        if (file_exists($webFile) && is_file($webFile)) {
+            return file_get_contents(WWW_ROOT . $url);
+        }
+
+        try {
+            return $this->requestAction($url, array('return', 'bare' => false));
+        } catch(Exception $e) {
+            $this->fourOFours[$url] = array();
+        }
+        return false;
     }
 
 }
