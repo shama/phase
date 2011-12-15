@@ -57,6 +57,9 @@ class BuildShell extends AppShell {
      * browsing your development install as the input
      */
     public function main() {
+    }
+
+    public function make() {
         exec('rm -rf ' . escapeshellarg($this->outputDir));
         mkdir($this->outputDir . '/css', 0777, true);
         mkdir($this->outputDir . '/img', 0777, true);
@@ -77,6 +80,30 @@ class BuildShell extends AppShell {
             $this->err("<warning>404s!</warning>");
             foreach($this->fourOFours as $url => $referers) {
                 $this->out("\t$url");
+            }
+        }
+    }
+
+    public function upload() {
+        $date = date("Y-m-d-Hi");
+        $this->out('Uploading new version');
+
+        $dryRun = true;
+        $output = rtrim($this->outputDir, '/');
+        $server = Configure::read('Phase.deploy.server');
+        $source = Configure::read('Phase.deploy.source');
+        $webroot = Configure::read('Phase.deploy.public');
+        $domain = 'ad7six.com';
+
+        $commands = array(
+            "rsync -rv $output/ $server:$source{$date}",
+            "ssh $server 'rm $webroot && ln -sf $source{$date} $webroot'"
+        );
+
+        foreach($commands as $command) {
+            $this->out($command);
+            if (!$dryRun) {
+                passthru($command);
             }
         }
     }
@@ -137,7 +164,11 @@ class BuildShell extends AppShell {
         }
 
         if (!preg_match('@\.\w{3,4}$@', $url)) {
-            $url = rtrim($url, '/') . '/index.html';
+            $basename = basename($url);
+            if ($basename && $basename[0] === '.') {
+            } else {
+                $url = rtrim($url, '/') . '/index.html';
+            }
         }
         if (!is_dir($this->outputDir . dirname($url))) {
             mkdir($this->outputDir . dirname($url), 0777, true);
