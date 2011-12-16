@@ -1,6 +1,6 @@
     <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
-    <script async defer >window.jQuery || document.write('<script src="/js/libs/jquery-1.7.0.min.js"><\/script>')</script>
+    <script>window.jQuery || document.write('<script src="/js/libs/jquery-1.7.0.min.js"><\/script>')</script>
 
 
     <!-- scripts concatenated and minified via build script -->
@@ -9,7 +9,7 @@
     <!-- end scripts -->
 
 
-    <script defer >
+    <script>
         var _gaq=[
             ['_setAccount','<?php echo Configure::read('Phase.analytics.code') ?>'],
             ['_trackPageview']
