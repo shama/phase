@@ -9,6 +9,7 @@
     <!-- end scripts -->
 
 
+    <?php if (file_exists(TMP . 'building')): ?>
     <script>
         var _gaq=[
             ['_setAccount','<?php echo Configure::read('Phase.analytics.code') ?>'],
@@ -16,6 +17,7 @@
         ];
     </script>
     <script async src='//www.google-analytics.com/ga.js' ></script>
+    <?php endif; ?>
 
     <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
              chromium.org/developers/how-tos/chrome-frame-getting-started -->
