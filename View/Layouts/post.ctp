@@ -23,20 +23,15 @@
     <?php echo $this->element('scripts') ?>
   </div>
 
-  <script type="text/javascript">
+  <script>
     var disqus_shortname = '<?php echo Configure::read('Phase.disqus.shortname') ?>';
-  (function () {
-    var s = document.createElement('script'); s.async = true;
-    s.src = 'http://disqus.com/forums/<?php echo Configure::read('Phase.disqus.shortname') ?>/count.js';
-    (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-  }());
+    <?php if (!file_exists(TMP . 'building')): ?>
+        var disqus_developer = 1; // developer mode is on
+    <?php endif; ?>
   </script>
-  <script type="text/javascript">
-  (function() {
-   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-   dsq.src = 'http://<?php echo Configure::read('Phase.disqus.shortname') ?>.disqus.com/embed.js';
-   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
+  <script async defer src="http://disqus.com/forums/<?php echo Configure::read('Phase.disqus.shortname') ?>/count.js">
+  </script>
+  <script async defer src="http://<?php echo Configure::read('Phase.disqus.shortname') ?>.disqus.com/embed.js">
+  </script>
 </body>
 </html>
