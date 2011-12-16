@@ -29,9 +29,7 @@
         var disqus_developer = 1; // developer mode is on
     <?php endif; ?>
   </script>
-  <script async defer src="http://disqus.com/forums/<?php echo Configure::read('Phase.disqus.shortname') ?>/count.js">
-  </script>
-  <script async defer src="http://<?php echo Configure::read('Phase.disqus.shortname') ?>.disqus.com/embed.js">
-  </script>
+  <script async defer src="http://disqus.com/forums/<?php echo Configure::read('Phase.disqus.shortname') ?>/count.js"></script>
+  <script async defer src="http://<?php echo Configure::read('Phase.disqus.shortname') ?>.disqus.com/embed.js"></script>
 </body>
 </html>
