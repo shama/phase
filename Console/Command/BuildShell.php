@@ -60,6 +60,7 @@ class BuildShell extends AppShell {
     }
 
     public function make() {
+        touch(TMP . 'building');
         exec('rm -rf ' . escapeshellarg($this->outputDir));
         mkdir($this->outputDir . '/css', 0777, true);
         mkdir($this->outputDir . '/img', 0777, true);
@@ -82,6 +83,7 @@ class BuildShell extends AppShell {
                 $this->out("\t$url");
             }
         }
+        unlink(TMP . 'building');
     }
 
     public function upload() {
@@ -163,7 +165,7 @@ class BuildShell extends AppShell {
             return;
         }
 
-        if (!preg_match('@\.\w{3,4}$@', $url)) {
+        if (!preg_match('@\.\w{2,4}$@', $url)) {
             $basename = basename($url);
             if ($basename && $basename[0] === '.') {
             } else {
