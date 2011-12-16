@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
- <title><?php echo $title_for_layout; ?></title>
+ <title><?php echo Configure::read('Phase.rss.title') ?></title>
  <link href="http://AD7six.com/atom.xml" rel="self"/>
  <link href="http://AD7six.com/"/>
  <?php $lastPost = $this->Post->data($posts[0]); ?>
