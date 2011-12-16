@@ -129,6 +129,7 @@ class BuildShell extends AppShell {
         $this->urlStack[] = '/apple-touch-icon-57x57-precomposed.png';
         $this->urlStack[] = '/apple-touch-icon-72x72-precomposed.png';
         $this->urlStack[] = '/apple-touch-icon-114x114-precomposed.png';
+        $this->urlStack[] = '/atom.xml';
 
         while($this->urlStack) {
             $url = array_shift($this->urlStack);

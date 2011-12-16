@@ -5,6 +5,7 @@ App::uses('AppHelper', 'View/Helper');
 class PostHelper extends AppHelper {
 
     public $helpers = array(
+        'Markdown',
         'YFM',
         'Text'
     );
@@ -47,6 +48,7 @@ class PostHelper extends AppHelper {
             }
             $return['intro'] = '<p>' . $return['intro'] . '</p>';
         }
+        $return['contents'] = $this->Markdown->process($return['contents']);
 
         return $return;
     }

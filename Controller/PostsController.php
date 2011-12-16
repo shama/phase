@@ -40,6 +40,10 @@ class PostsController extends AppController {
 
         $title_for_layout = '';
 
+        if ($this->params->params['ext'] === 'xml') {
+            $this->viewPath = 'Posts/xml';
+        }
+
         $this->set(compact('posts', 'title_for_layout'));
     }
 
@@ -79,11 +83,6 @@ class PostsController extends AppController {
 		}
 
         $this->set('postDate', mktime(0, 0, 0, $month, $day, $year));
-
-        if (substr($slug, -5) === '.html') {
-            $slug = substr($slug, 0, -5);
-        }
-
 		$this->render("$year-$month-$day-$slug");
 	}
 
@@ -97,12 +96,6 @@ class PostsController extends AppController {
 		if (!$path) {
 			$this->redirect('/');
 		}
-
-		$count = count($path);
-        $last = end($path);
-        if (substr($last, -5) === '.html') {
-            $path[count($path) -1] = substr($last, 0, -5);
-        }
 
 		$this->render(implode('-', $path));
 	}

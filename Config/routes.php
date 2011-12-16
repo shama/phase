@@ -21,13 +21,20 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
+Router::parseExtensions('xml', 'html');
+
 Router::connect('/phase/about', array('controller' => 'installer', 'action' => 'about'));
 if (!is_dir(Configure::read('PhaseRoot'))) {
     Router::connect('/*', array('controller' => 'installer', 'action' => 'about'));
     Router::connect('/go', array('controller' => 'installer', 'action' => 'go'));
 } else {
     Router::connect('/', array('controller' => 'posts', 'action' => 'home'));
-    Router::connect('/archives.html', array('controller' => 'posts', 'action' => 'archives'));
+    Router::connect(
+        '/atom',
+        array('controller' => 'posts', 'action' => 'archives'),
+        array('ext' => 'xml')
+    );
+    Router::connect('/archives', array('controller' => 'posts', 'action' => 'archives'));
     Router::connect(
         '/:year/:month/:day/:slug',
         array('controller' => 'posts', 'action' => 'viewDated'),
