@@ -15,7 +15,7 @@
             ['_trackPageview']
         ];
     </script>
-    <script async defer src='//www.google-analytics.com/ga.js' ></script>
+    <script async src='//www.google-analytics.com/ga.js' ></script>
 
     <!-- Prompt IE 6 users to install Chrome Frame. Remove this if you want to support IE 6.
              chromium.org/developers/how-tos/chrome-frame-getting-started -->
