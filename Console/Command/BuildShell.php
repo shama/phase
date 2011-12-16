@@ -90,7 +90,7 @@ class BuildShell extends AppShell {
         $date = date("Y-m-d-Hi");
         $this->out('Uploading new version');
 
-        $dryRun = true;
+        $dryRun = false;
         $output = rtrim($this->outputDir, '/');
         $server = Configure::read('Phase.deploy.server');
         $source = Configure::read('Phase.deploy.source');
@@ -300,7 +300,7 @@ class BuildShell extends AppShell {
      * concatenateScripts
      *
      * Parse out any local scripts which follow the specific format of:
-     *      <script defer src="/something.js"></script>
+     *      <script async defer src="/something.js"></script>
      *
      * And replace all matches with a single concatenated and minified js file
      * This is intended/designed for the same scripts appearing in all requests
@@ -309,7 +309,7 @@ class BuildShell extends AppShell {
      */
     protected function concatenateScripts(&$html) {
         $copy = preg_replace('@<!--.*?-->@s', '', $html);
-        preg_match_all('@<script defer src="(/[^/].*?\.js)"></script>@', $copy, $matches);
+        preg_match_all('@<script async defer src="(/[^/].*?\.js)"></script>@', $copy, $matches);
         if (!$matches) {
             return;
         }
@@ -332,7 +332,7 @@ class BuildShell extends AppShell {
         }
 
         $lastFile = array_pop($matches[0]);
-        $html = str_replace($lastFile, '<script defer src="/js/' . $hash . '.min.js"></script>', $html);
+        $html = str_replace($lastFile, '<script async defer src="/js/' . $hash . '.min.js"></script>', $html);
         foreach($matches[0] as $match) {
             $html = str_replace($match, '', $html);
         }
