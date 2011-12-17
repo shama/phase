@@ -39,6 +39,24 @@ class BuildShell extends AppShell {
     protected $urlStack = array();
 
     /**
+     * seedUrls
+     *
+     * Urls used when pseudo-crawling the site
+     */
+    protected $seedUrls = array(
+        '/',
+        '/.htaccess',
+        '/robots.txt',
+        '/favicon.ico',
+        '/apple-touch-icon.png',
+        '/apple-touch-icon-precomposed.png',
+        '/apple-touch-icon-57x57-precomposed.png',
+        '/apple-touch-icon-72x72-precomposed.png',
+        '/apple-touch-icon-114x114-precomposed.png',
+        '/atom.xml'
+    );
+
+    /**
      * getOptionParser
      */
     public function getOptionParser() {
@@ -118,18 +136,15 @@ class BuildShell extends AppShell {
      * output folder.
      *
      * Track and report 404s so that they can be corrected
+     *
+     * @param array $stack seed urls - if not passed the property seedUrls is used
      */
-    protected function recurse() {
-        $this->urlStack[] = '/.htaccess';
-        $this->urlStack[] = '/';
-        $this->urlStack[] = '/robots.txt';
-        $this->urlStack[] = '/favicon.ico';
-        $this->urlStack[] = '/apple-touch-icon.png';
-        $this->urlStack[] = '/apple-touch-icon-precomposed.png';
-        $this->urlStack[] = '/apple-touch-icon-57x57-precomposed.png';
-        $this->urlStack[] = '/apple-touch-icon-72x72-precomposed.png';
-        $this->urlStack[] = '/apple-touch-icon-114x114-precomposed.png';
-        $this->urlStack[] = '/atom.xml';
+    protected function recurse($stack = null) {
+        if ($stack === null) {
+            $this->urlStack = $this->seedUrls;
+        } else {
+            $this->urlStack = $stack;
+        }
 
         while($this->urlStack) {
             $url = array_shift($this->urlStack);
@@ -268,7 +283,7 @@ class BuildShell extends AppShell {
      */
     protected function concatenateCss(&$html) {
         $copy = preg_replace('@<!--.*?-->@s', '', $html);
-        preg_match_all('@<link rel="stylesheet" href="(/[^/].*?\.css)">@', $copy, $matches);
+        preg_match_all('@<link rel="stylesheet".*? href="(/[^/].*?\.css)">@', $copy, $matches);
         if (!$matches) {
             return;
         }
@@ -300,43 +315,67 @@ class BuildShell extends AppShell {
     /**
      * concatenateScripts
      *
-     * Parse out any local scripts which follow the specific format of:
-     *      <script async defer src="/something.js"></script>
-     *
-     * And replace all matches with a single concatenated and minified js file
-     * This is intended/designed for the same scripts appearing in all requests
+     * Parse out any local scripts, concatenate them into packets, minify and replace references
+     * The class atribute is used to allow for the possibility of bundling js files into multiple
+     * packets
      *
      * @param string $html
      */
-    protected function concatenateScripts(&$html) {
+    protected function concatenateScripts(&$html, $section = 'both') {
+        if ($section === 'both') {
+            $split = strpos($html, '<body');
+            if (!$split) {
+                return;
+            }
+            $head = $headOriginal = substr($html, 0, $split);
+            $body = $bodyOriginal = substr($html, $split);
+            $this->concatenateScripts($head, 'head');
+            $this->concatenateScripts($body, 'body');
+            $html = $head . $body;
+            return;
+        }
         $copy = preg_replace('@<!--.*?-->@s', '', $html);
-        preg_match_all('@<script async defer src="(/[^/].*?\.js)"></script>@', $copy, $matches);
+        preg_match_all('@<script.*?src="(/[^/].*?\.js)".*?></script>@', $copy, $matches);
         if (!$matches) {
             return;
         }
-
-        $files = array_unique($matches[1]);
-
-        $contents = '';
-        $id = implode($files, ':');
-
-        if (empty($this->concatenatedStack[$id])) {
-            foreach($files as $url) {
-                $contents .= $this->getContents($url);
+        $packets = array();
+        foreach($matches[0] as $i => $match) {
+            $class = 'default';
+            preg_match('@class=(["\'])(.*?)\1@', $match, $classMatch);
+            if ($classMatch) {
+                $class = $classMatch[2];
             }
-            $hash = md5($contents);
-            $this->concatenatedStack[$id] = $hash;
-            file_put_contents($this->outputDir . "/js/$hash.min.js", $contents);
-            $this->compressJs($contents, $this->outputDir . "/js/$hash.min.js");
-        } else {
-            $hash = $this->concatenatedStack[$id];
+            $packets[$class][] = $matches[1][$i];
+        }
+
+        $replace = '';
+        foreach($packets as $packet) {
+            $files = array_unique($packet);
+
+            $contents = '';
+            $id = implode($files, ':');
+
+            if (empty($this->concatenatedStack[$id])) {
+                foreach($files as $url) {
+                    $contents .= $this->getContents($url);
+                }
+                $hash = md5($contents);
+                $this->concatenatedStack[$id] = $hash;
+                file_put_contents($this->outputDir . "/js/$hash.min.js", $contents);
+                $this->compressJs($contents, $this->outputDir . "/js/$hash.min.js");
+            } else {
+                $hash = $this->concatenatedStack[$id];
+            }
+
+            $replace .= '<script async src="/js/' . $hash . '.min.js"></script>';
         }
 
         $lastFile = array_pop($matches[0]);
-        $html = str_replace($lastFile, '<script async defer src="/js/' . $hash . '.min.js"></script>', $html);
         foreach($matches[0] as $match) {
             $html = str_replace($match, '', $html);
         }
+        $html = str_replace($lastFile, $replace, $html);
     }
 
     /**
