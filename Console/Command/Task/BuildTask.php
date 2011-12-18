@@ -268,42 +268,54 @@ class BuildTask extends AppShell {
     /**
      * concatenateCss
      *
-     * Parse out any local stylesheed links
-     *      <link rel="stylesheet" href="/something.css">
-     *
+     * Parse out any local stylesheet links and concatenate them into packets
      * And replace all matches with a single concatenated and minified css file
      *
      * @param mixed $html
      */
     protected function concatenateCss(&$html) {
         $copy = preg_replace('@<!--.*?-->@s', '', $html);
-        preg_match_all('@<link rel="stylesheet".*? href="(/[^/].*?\.css)">@', $copy, $matches);
+        preg_match_all('@<link.*?rel="stylesheet".*? href="(/[^/].*?\.css)".*?>@', $copy, $matches);
         if (!$matches) {
             return;
         }
-
-        $files = array_unique($matches[1]);
-
-        $contents = '';
-        $id = implode($files, ':');
-
-        if (empty($this->concatenatedStack[$id])) {
-            foreach($files as $url) {
-                $contents .= $this->getContents($url);
+        $packets = array();
+        foreach($matches[0] as $i => $match) {
+            $class = 'default';
+            preg_match('@class=(["\'])(.*?)\1@', $match, $classMatch);
+            if ($classMatch) {
+                $class = $classMatch[2];
             }
-            $hash = md5($contents);
-            $this->concatenatedStack[$id] = $hash;
-            file_put_contents($this->outputDir . "/css/$hash.min.css", $contents);
-            $this->compressCss($contents, $this->outputDir . "/css/$hash.min.css");
-        } else {
-            $hash = $this->concatenatedStack[$id];
+            $packets[$class][] = $matches[1][$i];
+        }
+
+        $replace = '';
+        foreach($packets as $packet) {
+            $files = array_unique($packet);
+
+            $contents = '';
+            $id = implode($files, ':');
+
+            if (empty($this->concatenatedStack[$id])) {
+                foreach($files as $url) {
+                    $contents .= $this->getContents($url);
+                }
+                $hash = md5($contents);
+                $this->concatenatedStack[$id] = $hash;
+                file_put_contents($this->outputDir . "/css/$hash.min.css", $contents);
+                $this->compressCss($contents, $this->outputDir . "/css/$hash.min.css");
+            } else {
+                $hash = $this->concatenatedStack[$id];
+            }
+
+            $replace .= '<link rel="stylesheet" href="/css/' . $hash . '.min.css">';
         }
 
         $lastFile = array_pop($matches[0]);
-        $html = str_replace($lastFile, '<link rel="stylesheet" href="/css/' . $hash . '.min.css">', $html);
         foreach($matches[0] as $match) {
             $html = str_replace($match, '', $html);
         }
+        $html = str_replace($lastFile, $replace, $html);
     }
 
     /**
@@ -311,7 +323,7 @@ class BuildTask extends AppShell {
      *
      * Parse out any local scripts, concatenate them into packets, minify and replace references
      * The class atribute is used to allow for the possibility of bundling js files into multiple
-     * packets
+     * packets; if a script tag is not text/javascript it's ignored
      *
      * @param string $html
      */
@@ -335,6 +347,10 @@ class BuildTask extends AppShell {
         }
         $packets = array();
         foreach($matches[0] as $i => $match) {
+            preg_match('@type=(["\'])(.*?)\1@', $match, $typeMatch);
+            if ($typeMatch && strtolower($typeMatch[2]) !== 'text/javascript') {
+                continue;
+            }
             $class = 'default';
             preg_match('@class=(["\'])(.*?)\1@', $match, $classMatch);
             if ($classMatch) {
