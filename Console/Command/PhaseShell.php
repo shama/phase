@@ -19,14 +19,17 @@ class PhaseShell extends AppShell {
     public function getOptionParser() {
         $parser = new ConsoleOptionParser($this->name);
         $parser->description(array(
-            __d('phase', 'Build and deploy interface')
-		))->addSubcommand('write', array(
-				'help' => __d('phase', 'Create a new post.')
-		))->addSubcommand('build', array(
-				'help' => __d('phase', 'Generate a static version of your applicaction.')
-		))->addSubcommand('upload', array(
-				'help' => __d('phase', 'Copy files to public server.')
-		));
+            __d('phase', 'Manage your phase-built site')
+        ))->addSubcommand('write', array(
+            'help' => __d('phase', 'Create a new post.'),
+            'parser' => $this->Write->getOptionParser()
+        ))->addSubcommand('build', array(
+            'help' => __d('phase', 'Generate a static version of your applicaction.'),
+            'parser' => $this->Build->getOptionParser()
+        ))->addSubcommand('upload', array(
+            'help' => __d('phase', 'Copy files to public server.'),
+            'parser' => $this->Upload->getOptionParser()
+        ));
 
         return $parser;
     }
