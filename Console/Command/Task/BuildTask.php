@@ -97,7 +97,7 @@ class BuildTask extends AppShell {
 	public function getOptionParser() {
 		$parser = parent::getOptionParser();
         $parser->description(array(
-            __d('phase', 'Generate a static version of the site for deployment'),
+            __d('phase', 'Crawl application and create a static version of the result'),
         ))->addArgument('output', array(
             'help' => __d('phase', 'Where to put the generated files'),
             'required' => false,
