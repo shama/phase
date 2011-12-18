@@ -17,8 +17,8 @@ class BuildTask extends AppShell {
 
     public $optimizations = array(
         'html' => array(
-            'concatenateCss',
-            'concatenateJs',
+            'concatCss',
+            'concatJs',
             'compressHtml'
         ),
         'js' => array(
@@ -37,11 +37,11 @@ class BuildTask extends AppShell {
     protected $fourOFours = array();
 
     /**
-     * concatenatedStack
+     * concatStack
      *
      * Array of id => hashs used to know which asset packets have already been processed
      */
-    protected $concatenatedStack = array();
+    protected $concatStack = array();
 
     /**
      * urlStack
@@ -86,6 +86,28 @@ class BuildTask extends AppShell {
             $this->outputDir = $this->args[0];
         }
 
+        if (!empty($this->params['no-optimize'])) {
+            $this->optimizations = array();
+        }
+        if (!empty($this->params['no-compress'])) {
+            foreach($this->optimizations as $ext => &$methods) {
+                foreach($methods as $i => $method) {
+                    if (strpos($method, 'compress') === 0) {
+                        unset($methods[$i]);
+                    }
+                }
+            }
+        }
+        if (!empty($this->params['no-concat'])) {
+            foreach($this->optimizations as $ext => &$methods) {
+                foreach($methods as $i => $method) {
+                    if (strpos($method, 'concat') === 0) {
+                        unset($methods[$i]);
+                    }
+                }
+            }
+        }
+
         touch(TMP . 'building');
         exec('rm -rf ' . escapeshellarg($this->outputDir));
         mkdir($this->outputDir . '/css', 0777, true);
@@ -117,46 +139,217 @@ class BuildTask extends AppShell {
         $parser->description(array(
             __d('phase', 'Crawl application and create a static version of the result'),
         ))->addArgument('outputFolder', array(
-            'help' => __d('phase', 'Where to put the generated files'),
+            'help' => __d('phase', 'Where to put the generated files, defaults to "%s"', $this->outputDir),
             'required' => false
+        ))->addOption('no-optimize', array(
+            'help' => __d('phase', 'Disable all optimizations'),
+            'boolean' => true
+        ))->addOption('no-concat', array(
+            'help' => __d('phase', 'Disable automatic css and js concatenation'),
+            'boolean' => true
+        ))->addOption('no-compress', array(
+            'help' => __d('phase', 'Disable all file compression (minification)'),
+            'boolean' => true
         ));
         return $parser;
 	}
 
     /**
-     * recurse
+     * compress css using yui compressor
      *
-     * Starting with a few seed urls - crawl the cake application following all the urls
-     * that can be found. for everything that's linked to compress it and write out to the
-     * output folder.
+     * if a filename is passed - it is used as the input, otherwise the contents are used
+     * In both cases the contents are updated
      *
-     * Track and report 404s so that they can be corrected
-     *
-     * @param array $stack seed urls - if not passed the property seedUrls is used
+     * @param mixed $contents
+     * @param string $file
      */
-    protected function recurse($stack = null) {
-        if ($stack === null) {
-            $this->urlStack = $this->seedUrls;
-        } else {
-            $this->urlStack = $stack;
+    protected function compressCss(&$contents, $file = '') {
+        if (!$file) {
+            $file = '/tmp/compressthis.css';
+            file_put_contents($file, $contents);
+        }
+        $command = "java -jar Vendor/h5bp/build/tools/yuicompressor-2.4.5.jar --type css -o $file $file";
+        exec($command);
+        $contents = file_get_contents($file);
+    }
+
+    /**
+     * compress html using html compressor
+     *
+     * if a filename is passed - it is used as the input, otherwise the contents are used
+     * In both cases the contents are updated
+     *
+     * @param string $contents
+     * @param string $file
+     */
+    protected function compressHtml(&$contents, $file = '') {
+        if (!$file) {
+            $file = '/tmp/compressthis.html';
+            file_put_contents($file, $contents);
+        }
+        $command = "java -jar Vendor/h5bp/build/tools/htmlcompressor-1.4.3.jar --compress-js --compress-css -o $file $file";
+        exec($command);
+        $contents = file_get_contents($file);
+    }
+
+    /**
+     * compress js using yui compressor
+     *
+     * if a filename is passed - it is used as the input, otherwise the contents are used
+     * In both cases the contents are updated
+     *
+     * @param string $contents
+     * @param string $file
+     */
+    protected function compressJs(&$contents, $file = '') {
+        if (!$file) {
+            $file = '/tmp/compressthis.js';
+            file_put_contents($file, $contents);
+        }
+        $command = "java -jar Vendor/h5bp/build/tools/yuicompressor-2.4.5.jar --type js -o $file $file";
+        exec($command);
+        $contents = file_get_contents($file);
+    }
+
+    /**
+     * concatCss
+     *
+     * Parse out any local stylesheet links and concat them into packets
+     *
+     * @param string $html
+     */
+    protected function concatCss(&$html) {
+        $this->concatReferences(
+            $html,
+            'css',
+            '@<link.*?rel="stylesheet".*? href="(/[^/].*?\.css)".*?>@',
+            '<link rel="stylesheet" href="/css/%hash%.min.css">'
+        );
+    }
+
+    /**
+     * concatJs - processing the head and body seperately
+     *
+     * Parse out any local scripts, concat them into packets, minify and replace references
+     * The class atribute is used to allow for the possibility of bundling js files into multiple
+     * packets; if a script tag is not text/javascript it's ignored
+     *
+     * @param string $html
+     */
+    protected function concatJs(&$html, $section = 'both') {
+        if ($section === 'both') {
+            $split = strpos($html, '<body');
+            if (!$split) {
+                return;
+            }
+            $head = $headOriginal = substr($html, 0, $split);
+            $body = $bodyOriginal = substr($html, $split);
+            $this->concatJs($head, 'head');
+            $this->concatJs($body, 'body');
+            $html = $head . $body;
+            return;
+        }
+        $this->concatReferences(
+            $html,
+            'js',
+            '@<script.*?src="(/[^/].*?\.js)".*?></script>@',
+            '<script async src="/js/%hash%.min.js"></script>'
+        );
+    }
+
+    /**
+     * Search for references to concat (css and js). The replace logic is common to both types
+     * and potentially useful for other things in the future
+     *
+     * @param string $html
+     * @param string $type
+     * @param string $pattern
+     * @param string $replaceTag
+     */
+    protected function concatReferences(&$html, $type, $pattern, $replaceTag) {
+        $copy = preg_replace('@<!--.*?-->@s', '', $html);
+        preg_match_all($pattern, $copy, $matches);
+        if (!$matches) {
+            return;
         }
 
-        while($this->urlStack) {
-            $url = array_shift($this->urlStack);
-            $return = $this->processUrl($url);
-            if (!$return) {
-                continue;
-            }
-            foreach($return['urls'] as $subUrl) {
-                if (!empty($this->fourOFours[$subUrl])) {
-                    $this->fourOFours[$subUrl][] = $url;
-                }
-                if (file_exists($this->outputDir . $subUrl) || in_array($subUrl, $this->urlStack)) {
+        $packets = array();
+        foreach($matches[0] as $i => $match) {
+            if ($type === 'js') {
+                preg_match('@type=(["\'])(.*?)\1@', $match, $typeMatch);
+                if ($typeMatch && strtolower($typeMatch[2]) !== 'text/javascript') {
                     continue;
                 }
-                $this->urlStack[] = $subUrl;
             }
+
+            $class = 'default';
+            preg_match('@class=(["\'])(.*?)\1@', $match, $classMatch);
+            if ($classMatch) {
+                $class = $classMatch[2];
+            }
+            $packets[$class][] = $matches[1][$i];
         }
+
+        $replace = '';
+        foreach($packets as $packet) {
+            $files = array_unique($packet);
+
+            $contents = '';
+            $id = implode($files, ':');
+
+            if (empty($this->concatStack[$id])) {
+                foreach($files as $url) {
+                    $contents .= $this->getContents($url);
+                }
+                $hash = md5($contents);
+                $url = "/$type/$hash.min.$type";
+                $this->concatStack[$id] = $hash;
+                file_put_contents($this->outputDir . $url, $contents);
+
+                if (!empty($this->optimizations[$type])) {
+                    foreach($this->optimizations[$type] as $method) {
+                        $this->$method($contents, $this->outputDir . $url);
+                    }
+                }
+            } else {
+                $hash = $this->concatStack[$id];
+            }
+
+            $replace .= str_replace('%hash%', $hash, $replaceTag);
+        }
+
+        $lastFile = array_pop($matches[0]);
+        foreach($matches[0] as $match) {
+            $html = str_replace($match, '', $html);
+        }
+        $html = str_replace($lastFile, $replace, $html);
+    }
+
+    /**
+     * getContents
+     *
+     * Simulate requesting the url with a browser - checks the webroot and then the app
+     *
+     * @param string $url
+     */
+    protected function getContents($url = '/') {
+        $root = rtrim(Configure::read('PhaseWebroot'), DS);
+        $rootFile = $root . $url;
+        if (file_exists($rootFile) && is_file($rootFile)) {
+            return file_get_contents($root . $url);
+        }
+
+        $webFile = WWW_ROOT . substr($url, 1);
+        if (file_exists($webFile) && is_file($webFile)) {
+            return file_get_contents(WWW_ROOT . $url);
+        }
+
+        try {
+            return $this->requestAction($url, array('return', 'bare' => false));
+        } catch(Exception $e) {
+            $this->fourOFours[$url] = array();
+        }
+        return false;
     }
 
     /**
@@ -209,211 +402,39 @@ class BuildTask extends AppShell {
     }
 
     /**
-     * compressCss
+     * recurse
      *
-     * if a filename is passed - it is used as the input, otherwise the contents are used
-     * In both cases the contents are updated
+     * Starting with a few seed urls - crawl the cake application following all the urls
+     * that can be found. for everything that's linked to compress it and write out to the
+     * output folder.
      *
-     * @param mixed $contents
-     * @param string $file
+     * Track and report 404s so that they can be corrected
+     *
+     * @param array $stack seed urls - if not passed the property seedUrls is used
      */
-    protected function compressCss(&$contents, $file = '') {
-        if (!$file) {
-            $file = '/tmp/compressthis.css';
-            file_put_contents($file, $contents);
-        }
-        $command = "java -jar Vendor/h5bp/build/tools/yuicompressor-2.4.5.jar --type css -o $file $file";
-        exec($command);
-        $contents = file_get_contents($file);
-    }
-
-    /**
-     * compressHtml
-     *
-     * if a filename is passed - it is used as the input, otherwise the contents are used
-     * In both cases the contents are updated
-     *
-     * @param string $contents
-     * @param string $file
-     */
-    protected function compressHtml(&$contents, $file = '') {
-        if (!$file) {
-            $file = '/tmp/compressthis.html';
-            file_put_contents($file, $contents);
-        }
-        $command = "java -jar Vendor/h5bp/build/tools/htmlcompressor-1.4.3.jar --compress-js --compress-css -o $file $file";
-        exec($command);
-        $contents = file_get_contents($file);
-    }
-
-    /**
-     * compressJs
-     *
-     * if a filename is passed - it is used as the input, otherwise the contents are used
-     * In both cases the contents are updated
-     *
-     * @param string $contents
-     * @param string $file
-     */
-    protected function compressJs(&$contents, $file = '') {
-        if (!$file) {
-            $file = '/tmp/compressthis.js';
-            file_put_contents($file, $contents);
-        }
-        $command = "java -jar Vendor/h5bp/build/tools/yuicompressor-2.4.5.jar --type js -o $file $file";
-        exec($command);
-        $contents = file_get_contents($file);
-    }
-
-    /**
-     * concatenateCss
-     *
-     * Parse out any local stylesheet links and concatenate them into packets
-     * And replace all matches with a single concatenated and minified css file
-     *
-     * @param mixed $html
-     */
-    protected function concatenateCss(&$html) {
-        $copy = preg_replace('@<!--.*?-->@s', '', $html);
-        preg_match_all('@<link.*?rel="stylesheet".*? href="(/[^/].*?\.css)".*?>@', $copy, $matches);
-        if (!$matches) {
-            return;
-        }
-        $packets = array();
-        foreach($matches[0] as $i => $match) {
-            $class = 'default';
-            preg_match('@class=(["\'])(.*?)\1@', $match, $classMatch);
-            if ($classMatch) {
-                $class = $classMatch[2];
-            }
-            $packets[$class][] = $matches[1][$i];
+    protected function recurse($stack = null) {
+        if ($stack === null) {
+            $this->urlStack = $this->seedUrls;
+        } else {
+            $this->urlStack = $stack;
         }
 
-        $replace = '';
-        foreach($packets as $packet) {
-            $files = array_unique($packet);
-
-            $contents = '';
-            $id = implode($files, ':');
-
-            if (empty($this->concatenatedStack[$id])) {
-                foreach($files as $url) {
-                    $contents .= $this->getContents($url);
-                }
-                $hash = md5($contents);
-                $this->concatenatedStack[$id] = $hash;
-                file_put_contents($this->outputDir . "/css/$hash.min.css", $contents);
-                $this->compressCss($contents, $this->outputDir . "/css/$hash.min.css");
-            } else {
-                $hash = $this->concatenatedStack[$id];
-            }
-
-            $replace .= '<link rel="stylesheet" href="/css/' . $hash . '.min.css">';
-        }
-
-        $lastFile = array_pop($matches[0]);
-        foreach($matches[0] as $match) {
-            $html = str_replace($match, '', $html);
-        }
-        $html = str_replace($lastFile, $replace, $html);
-    }
-
-    /**
-     * concatenateJs
-     *
-     * Parse out any local scripts, concatenate them into packets, minify and replace references
-     * The class atribute is used to allow for the possibility of bundling js files into multiple
-     * packets; if a script tag is not text/javascript it's ignored
-     *
-     * @param string $html
-     */
-    protected function concatenateJs(&$html, $section = 'both') {
-        if ($section === 'both') {
-            $split = strpos($html, '<body');
-            if (!$split) {
-                return;
-            }
-            $head = $headOriginal = substr($html, 0, $split);
-            $body = $bodyOriginal = substr($html, $split);
-            $this->concatenateJs($head, 'head');
-            $this->concatenateJs($body, 'body');
-            $html = $head . $body;
-            return;
-        }
-        $copy = preg_replace('@<!--.*?-->@s', '', $html);
-        preg_match_all('@<script.*?src="(/[^/].*?\.js)".*?></script>@', $copy, $matches);
-        if (!$matches) {
-            return;
-        }
-        $packets = array();
-        foreach($matches[0] as $i => $match) {
-            preg_match('@type=(["\'])(.*?)\1@', $match, $typeMatch);
-            if ($typeMatch && strtolower($typeMatch[2]) !== 'text/javascript') {
+        while($this->urlStack) {
+            $url = array_shift($this->urlStack);
+            $return = $this->processUrl($url);
+            if (!$return) {
                 continue;
             }
-            $class = 'default';
-            preg_match('@class=(["\'])(.*?)\1@', $match, $classMatch);
-            if ($classMatch) {
-                $class = $classMatch[2];
-            }
-            $packets[$class][] = $matches[1][$i];
-        }
-
-        $replace = '';
-        foreach($packets as $packet) {
-            $files = array_unique($packet);
-
-            $contents = '';
-            $id = implode($files, ':');
-
-            if (empty($this->concatenatedStack[$id])) {
-                foreach($files as $url) {
-                    $contents .= $this->getContents($url);
+            foreach($return['urls'] as $subUrl) {
+                if (!empty($this->fourOFours[$subUrl])) {
+                    $this->fourOFours[$subUrl][] = $url;
                 }
-                $hash = md5($contents);
-                $this->concatenatedStack[$id] = $hash;
-                file_put_contents($this->outputDir . "/js/$hash.min.js", $contents);
-                $this->compressJs($contents, $this->outputDir . "/js/$hash.min.js");
-            } else {
-                $hash = $this->concatenatedStack[$id];
+                if (file_exists($this->outputDir . $subUrl) || in_array($subUrl, $this->urlStack)) {
+                    continue;
+                }
+                $this->urlStack[] = $subUrl;
             }
-
-            $replace .= '<script async src="/js/' . $hash . '.min.js"></script>';
         }
-
-        $lastFile = array_pop($matches[0]);
-        foreach($matches[0] as $match) {
-            $html = str_replace($match, '', $html);
-        }
-        $html = str_replace($lastFile, $replace, $html);
     }
-
-    /**
-     * getContents
-     *
-     * Simulate requesting the url with a browser - checks the webroot and then the app
-     *
-     * @param string $url
-     */
-    protected function getContents($url = '/') {
-        $root = rtrim(Configure::read('PhaseWebroot'), DS);
-        $rootFile = $root . $url;
-        if (file_exists($rootFile) && is_file($rootFile)) {
-            return file_get_contents($root . $url);
-        }
-
-        $webFile = WWW_ROOT . substr($url, 1);
-        if (file_exists($webFile) && is_file($webFile)) {
-            return file_get_contents(WWW_ROOT . $url);
-        }
-
-        try {
-            return $this->requestAction($url, array('return', 'bare' => false));
-        } catch(Exception $e) {
-            $this->fourOFours[$url] = array();
-        }
-        return false;
-    }
-
 
 }
