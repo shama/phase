@@ -15,6 +15,20 @@ class BuildTask extends AppShell {
      */
     public $outputDir = 'publish';
 
+    public $optimizations = array(
+        'html' => array(
+            'concatenateCss',
+            'concatenateJs',
+            'compressHtml'
+        ),
+        'js' => array(
+            'compressJs'
+        ),
+        'css' => array(
+            'compressCss'
+        )
+    );
+
     /**
      * fourOFours
      *
@@ -68,6 +82,10 @@ class BuildTask extends AppShell {
      * browsing your development install as the input
      */
 	public function execute() {
+        if (!empty($this->args[0])) {
+            $this->outputDir = $this->args[0];
+        }
+
         touch(TMP . 'building');
         exec('rm -rf ' . escapeshellarg($this->outputDir));
         mkdir($this->outputDir . '/css', 0777, true);
@@ -98,31 +116,11 @@ class BuildTask extends AppShell {
 		$parser = parent::getOptionParser();
         $parser->description(array(
             __d('phase', 'Crawl application and create a static version of the result'),
-        ))->addArgument('output', array(
+        ))->addArgument('outputFolder', array(
             'help' => __d('phase', 'Where to put the generated files'),
-            'required' => false,
+            'required' => false
         ));
         return $parser;
-
-		return $parser->description(
-				__d('cake_console', 'Bake a controller for a model. Using options you can bake public, admin or both.')
-			)->addArgument('name', array(
-				'help' => __d('cake_console', 'Name of the controller to bake. Can use Plugin.name to bake controllers into plugins.')
-			))->addOption('public', array(
-				'help' => __d('cake_console', 'Bake a controller with basic crud actions (index, view, add, edit, delete).'),
-				'boolean' => true
-			))->addOption('admin', array(
-				'help' => __d('cake_console', 'Bake a controller with crud actions for one of the Routing.prefixes.'),
-				'boolean' => true
-			))->addOption('plugin', array(
-				'short' => 'p',
-				'help' => __d('cake_console', 'Plugin to bake the controller into.')
-			))->addOption('connection', array(
-				'short' => 'c',
-				'help' => __d('cake_console', 'The connection the controller\'s model is on.')
-			))->addSubcommand('all', array(
-				'help' => __d('cake_console', 'Bake all controllers with CRUD methods.')
-			))->epilog(__d('cake_console', 'Omitting all arguments and options will enter into an interactive mode.'));
 	}
 
     /**
@@ -188,14 +186,13 @@ class BuildTask extends AppShell {
         if (!is_dir($this->outputDir . dirname($url))) {
             mkdir($this->outputDir . dirname($url), 0777, true);
         }
-        if (substr($url, -5) === '.html') {
-            $this->concatenateCss($contents);
-            $this->concatenateScripts($contents);
-            $this->compressHtml($contents);
-        } elseif (substr($url, -3) === '.js') {
-            $this->compressJs($contents);
-        } elseif (substr($url, -4) === '.css') {
-            $this->compressCss($contents);
+
+        $dot = strrpos($url, '.');
+        $ext = substr($url, $dot + 1);
+        if (!empty($this->optimizations[$ext])) {
+            foreach($this->optimizations[$ext] as $method) {
+                $this->$method($contents);
+            }
         }
         file_put_contents($this->outputDir . $url, $contents);
 
@@ -310,7 +307,7 @@ class BuildTask extends AppShell {
     }
 
     /**
-     * concatenateScripts
+     * concatenateJs
      *
      * Parse out any local scripts, concatenate them into packets, minify and replace references
      * The class atribute is used to allow for the possibility of bundling js files into multiple
@@ -318,7 +315,7 @@ class BuildTask extends AppShell {
      *
      * @param string $html
      */
-    protected function concatenateScripts(&$html, $section = 'both') {
+    protected function concatenateJs(&$html, $section = 'both') {
         if ($section === 'both') {
             $split = strpos($html, '<body');
             if (!$split) {
@@ -326,8 +323,8 @@ class BuildTask extends AppShell {
             }
             $head = $headOriginal = substr($html, 0, $split);
             $body = $bodyOriginal = substr($html, $split);
-            $this->concatenateScripts($head, 'head');
-            $this->concatenateScripts($body, 'body');
+            $this->concatenateJs($head, 'head');
+            $this->concatenateJs($body, 'body');
             $html = $head . $body;
             return;
         }
