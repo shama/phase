@@ -138,7 +138,7 @@ class BuildTask extends AppShell {
 		$parser = parent::getOptionParser();
         $parser->description(array(
             __d('phase', 'Crawl application and create a static version of the result'),
-        ))->addArgument('outputFolder', array(
+        ))->addArgument('path', array(
             'help' => __d('phase', 'Where to put the generated files, defaults to "%s"', $this->outputDir),
             'required' => false
         ))->addOption('no-optimize', array(
