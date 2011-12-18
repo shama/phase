@@ -8,25 +8,64 @@ App::uses('Folder', 'Utility');
  */
 class DeployTask extends AppShell {
 
+    public $outputDir = 'publish';
+
+	public function getOptionParser() {
+		$parser = parent::getOptionParser();
+        $parser->description(array(
+            __d('phase', 'Upload static site to public server'),
+        ))->addArgument('path', array(
+            'help' => __d('phase', 'Source dir to copy, defaults to "%s"', $this->outputDir),
+        ))->addOption('server', array(
+            'help' => __d('phase', 'Remote server name'),
+        ))->addOption('remotePath', array(
+            'help' => __d('phase', 'Location of deployed versions'),
+        ))->addOption('docroot', array(
+            'help' => __d('phase', 'Remote docroot'),
+        ))->addOption('dry-run', array(
+            'help' => __d('phase', 'Don\'t do anything, just show the commands'),
+            'boolean' => true,
+            'short' => 'n'
+        ));
+        return $parser;
+	}
+
     /**
      * Wipe the output diretory and repopulate it using what you can see
      * browsing your development install as the input
      */
     public function execute() {
         $date = date("Y-m-d-Hi");
-        $this->out('Uploading new version');
 
         $dryRun = false;
         $output = rtrim($this->outputDir, '/');
         $server = Configure::read('Phase.deploy.server');
         $source = Configure::read('Phase.deploy.source');
-        $webroot = Configure::read('Phase.deploy.public');
-        $domain = 'ad7six.com';
+        $docroot = Configure::read('Phase.deploy.public');
+
+        if (!empty($this->params['dry-run'])) {
+            $dryRun = true;
+        }
+        if (!empty($this->params['server'])) {
+            $server = $this->params['server'];
+        }
+        if (!empty($this->params['remotePath'])) {
+            $source = rtrim($this->params['remotePath'], '/') . '/';
+        }
+        if (!empty($this->params['docroot'])) {
+            $docroot = $this->params['docroot'];
+        }
 
         $commands = array(
             "rsync -rv $output/ $server:$source{$date}",
-            "ssh $server 'rm $webroot && ln -sf $source{$date} $webroot'"
+            "ssh $server 'rm $docroot && ln -sf $source{$date} $docroot'"
         );
+
+        if ($dryRun) {
+            $this->out('Commands to be run:');
+        } else {
+            $this->out('Uploading new version');
+        }
 
         foreach($commands as $command) {
             $this->out($command);
@@ -35,35 +74,4 @@ class DeployTask extends AppShell {
             }
         }
     }
-
-	public function getOptionParser() {
-		$parser = parent::getOptionParser();
-        $parser->description(array(
-            __d('phase', 'Generate a static version of the site for deployment'),
-        ))->addArgument('output', array(
-            'help' => __d('phase', 'Where to put the generated files'),
-            'required' => false,
-        ));
-        return $parser;
-
-		return $parser->description(
-				__d('cake_console', 'Bake a controller for a model. Using options you can bake public, admin or both.')
-			)->addArgument('name', array(
-				'help' => __d('cake_console', 'Name of the controller to bake. Can use Plugin.name to bake controllers into plugins.')
-			))->addOption('public', array(
-				'help' => __d('cake_console', 'Bake a controller with basic crud actions (index, view, add, edit, delete).'),
-				'boolean' => true
-			))->addOption('admin', array(
-				'help' => __d('cake_console', 'Bake a controller with crud actions for one of the Routing.prefixes.'),
-				'boolean' => true
-			))->addOption('plugin', array(
-				'short' => 'p',
-				'help' => __d('cake_console', 'Plugin to bake the controller into.')
-			))->addOption('connection', array(
-				'short' => 'c',
-				'help' => __d('cake_console', 'The connection the controller\'s model is on.')
-			))->addSubcommand('all', array(
-				'help' => __d('cake_console', 'Bake all controllers with CRUD methods.')
-			))->epilog(__d('cake_console', 'Omitting all arguments and options will enter into an interactive mode.'));
-	}
 }
