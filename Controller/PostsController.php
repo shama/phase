@@ -19,10 +19,6 @@ class PostsController extends AppController {
  */
     public $viewClass = 'Phase';
 
-    public function __construct($request = null, $response = null) {
-        return parent::__construct($request, $response);
-    }
-
     public function archives() {
         $extLength = strlen($this->ext);
 
