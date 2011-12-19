@@ -69,6 +69,9 @@ For a simple intro - just dive right into the cli:
 	build   Generate a static version of your application.
 	deploy  Copy files to public server.
 	...
+	
+There are three subcommands, and they are listed in the order they are intended to be used. Each
+has it's own specific help.
 
 Roadmap
 -------
