@@ -34,7 +34,7 @@ Phase requires cakephp 2.0+, and has a couple of dependencies. To install from s
 	copy Config/core.php.default Config/core.php
 	cp -R Skel Site
 
-Point your browser at hmm-yeah.over-here/phase/webroot and make sure it doesn't look broken. Then:
+Point your browser at hmm-yeah.over-here/phase/webroot and make sure it doesn't look broken.
 
 Concepts
 --------
