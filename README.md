@@ -1,4 +1,4 @@
-Phase ![Project status](http://stillmaintained.com/AD7six/phase.png)
+Phase
 ====================================================================
 
 Phase is a static site builder similar to the awesome jekyll. It uses (by default) markdown and
