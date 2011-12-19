@@ -4,8 +4,7 @@ Phase
 Phase is a static site builder similar to the awesome jekyll. It uses (by default) markdown and
 YFM (Yaml front matter) such that your posts are largely interchangable between a jekyl and phase
 install. By using best practices outlined in the h5bp project, it generates a highly-optimized
-static version of your site, including html compression, javascript and css compression and
-concatenation.
+static version of your site.
 
 Dependencies
 ------------
