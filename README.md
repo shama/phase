@@ -49,8 +49,8 @@ which have no impact on the resultant compressed file (formatting, comments) wil
 to re-download the same resource again if they have it in cache.
 
 Only the contents of `PhaseRoot/Site/webroot` and any urls your application references are present
-in the built version of your site. A urls from the h5bp project are used as seeds to crawl the rest
-of your content.
+in the built version of your site. A few urls from the h5bp project are used as seeds to crawl the 
+rest of your content.
 
 Usage
 -----
