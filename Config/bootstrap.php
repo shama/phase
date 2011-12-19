@@ -23,6 +23,22 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
+/**
+ * Absolute paths to where things are
+ */
+if (!Configure::read('PhaseRoot')) {
+    Configure::write('PhaseRoot', APP . 'Site' . DS);
+}
+if (!Configure::read('PhaseViews')) {
+    Configure::write('PhaseViews', Configure::read('PhaseRoot') . 'Views' . DS);
+}
+if (!Configure::read('PhasePosts')) {
+    Configure::write('PhasePosts', Configure::read('PhaseViews') . 'Posts' . DS);
+}
+if (!Configure::read('PhaseWebroot')) {
+    Configure::write('PhaseWebroot', Configure::read('PhaseRoot') . 'webroot' . DS);
+}
+
 // Setup a 'default' cache configuration for use in the application.
 Cache::config('default', array('engine' => 'File'));
 
@@ -44,6 +60,9 @@ Cache::config('default', array('engine' => 'File'));
  * ));
  *
  */
+    App::build(array(
+        'View' => array(Configure::read('PhaseViews')),
+    ));
 
 /**
  * Custom Inflector rules, can be set to correctly pluralize or singularize table, model, controller names or whatever other
