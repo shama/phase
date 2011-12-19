@@ -6,7 +6,7 @@ description: Latest posts from Somebody
 
   <h2>Title</h2>
   <p>Tagline.</p>
-  <h2>Latest: <a href="<?php echo $latest['url'] ?>"><?php echo $latest['title'] ?></a></h2>
+  <?php $latest = $this->Post->data($latest); ?><h2>Latest: <a href="<?php echo $latest['url'] ?>"><?php echo $latest['title'] ?></a></h2>
   <h3 class="date"><?php echo strftime('%e %b, %G', $latest['date']) ?></h3>
   <?php echo $latest['intro'] ?>
 
