@@ -76,10 +76,11 @@ Roadmap
 A few things are currently missing but planned for:
 
 * Add CSS image detection (parsing of url references in css)
-* Add CSS image optimizations
 * Add CSS sprite building
+* Add image optimizations
+* Add a js search
 * Ignore drafts when deploying
-* Move code around a bit
+* Move code around a bit (make plugins where appropriate)
 * Add test cases
 
 History
