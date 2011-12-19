@@ -19,7 +19,7 @@ class PostsController extends AppController {
     public $viewClass = 'Phase';
 
     public function archives() {
-        $posts = $this->Post->findAll($this->ext, true);
+        $posts = $this->Post->findAll();
         $title_for_layout = 'All posts';
 
         if ($this->params->params['ext'] === 'xml') {
@@ -30,7 +30,7 @@ class PostsController extends AppController {
     }
 
     public function home() {
-        $posts = $this->Post->findAll($this->ext, 6);
+        $posts = $this->Post->findAll(6);
         $title_for_layout = 'Recent writing';
 
         $latest = array_shift($posts);
