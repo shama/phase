@@ -1,7 +1,6 @@
 <?php
 
 App::uses('AppController', 'Controller');
-App::uses('Folder', 'Utility');
 
 class PostsController extends AppController {
 
@@ -20,21 +19,8 @@ class PostsController extends AppController {
     public $viewClass = 'Phase';
 
     public function archives() {
-        $extLength = strlen($this->ext);
-
-        $folder = new Folder(Configure::read('PhasePosts'));
-        $contents = $folder->read();
-
-        $posts = array();
-        foreach($contents[1] as $i => $file) {
-            if ($file[0] === '.' || substr($file, - $extLength) !== $this->ext) {
-                continue;
-            }
-            $posts[] = $file;
-        }
-        $posts = array_reverse($posts);
-
-        $title_for_layout = '';
+        $posts = $this->Post->findAll($this->ext, true);
+        $title_for_layout = 'All posts';
 
         if ($this->params->params['ext'] === 'xml') {
             $this->viewPath = 'Posts/xml';
@@ -44,24 +30,10 @@ class PostsController extends AppController {
     }
 
     public function home() {
-        $extLength = strlen($this->ext);
+        $posts = $this->Post->findAll($this->ext, 6);
+        $title_for_layout = 'Recent writing';
 
-        $folder = new Folder(Configure::read('PhasePosts'));
-        $contents = $folder->read();
-
-        $posts = array();
-        foreach($contents[1] as $i => $file) {
-            if ($file[0] === '.' || substr($file, - $extLength) !== $this->ext) {
-                continue;
-            }
-            $posts[] = $file;
-        }
-
-        $latest = end($posts);
-        $posts = array_slice(array_reverse($posts), 1, 6);
-
-        $title_for_layout = '';
-
+        $latest = array_shift($posts);
         $this->set(compact('posts', 'latest', 'title_for_layout'));
     }
 
@@ -79,6 +51,9 @@ class PostsController extends AppController {
 		}
 
         $this->set('postDate', mktime(0, 0, 0, $month, $day, $year));
+        if (file_exists(Configure::read('PhasePosts') . "$year/$month/$day/$slug.md")) {
+		    return $this->render("$year/$month/$day/$slug");
+        }
 		$this->render("$year-$month-$day-$slug");
 	}
 

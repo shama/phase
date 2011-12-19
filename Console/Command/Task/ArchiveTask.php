@@ -11,7 +11,7 @@ class ArchiveTask extends AppShell {
         $root = Configure::read('PhasePosts');
 
         $post = ClassRegistry::init('Post');
-        $posts = $post->findAll();
+        $posts = $post->findAll(true, false);
 
         $yes = false;
         foreach($posts as $post) {
