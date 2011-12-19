@@ -2,10 +2,9 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
  <title><?php echo Configure::read('Phase.feed.title') ?></title>
- <link href="http://AD7six.com/atom.xml" rel="self"/>
- <link href="http://AD7six.com/"/>
- <?php $lastPost = $this->Post->data($posts[0]); ?>
- <updated><?php echo strftime('%Y-%m-%dT%H:%M:%s+%z', $lastPost['date']) ?></updated>
+ <link href="<?php echo Configure::read('Phase.site.domain') ?>atom.xml" rel="self"/>
+ <link href="<?php echo Configure::read('Phase.site.domain') ?>"/>
+ <updated><?php echo strftime('%Y-%m-%dT%H:%M:%s+%z', $posts[0]['date']) ?></updated>
  <id><?php echo Configure::read('Phase.feed.id') ?></id>
  <author>
    <name><?php echo Configure::read('Phase.feed.author') ?></name>

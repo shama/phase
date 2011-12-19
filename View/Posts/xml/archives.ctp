@@ -2,7 +2,7 @@
 layout: xml/atom
 ---
 
-<?php foreach($posts as $file): $post = $this->Post->data($file); ?>
+<?php foreach($posts as $post): $post = $this->Post->data($file); ?>
  <entry>
    <title><?php echo $post['title'] ?></title>
    <link href="<?php echo Configure::read('Phase.site.domain') . $post['url']?>"/>
