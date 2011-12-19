@@ -14,9 +14,7 @@ Phase dependencies:
 * PHP 5.3.0+
 * java
 
-If java is not available, phase can still be used by disabling frontend optimizations (or possibly
-by closing your eyes and holding your breath while ignoring the reams of errors you'll see when
-generating a build)
+If java is not available, phase can still be used by using the `--no-compression` flag.
 
 Installation
 ------------
