@@ -19,8 +19,8 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-Configure::write('Phase.rss.url', '');
-Configure::write('Phase.rss.title', '');
+Configure::write('Phase.feed.url', '');
+Configure::write('Phase.feed.title', '');
 Configure::write('Phase.site.name', '');
 
 Configure::write('Phase.author.name', '');

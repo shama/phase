@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="/css/screen.css">
 	<link rel="stylesheet" href="/css/syntax.css">
 
-    <link href="<?php echo Configure::read('Phase.rss.url') ?>" rel="alternate" title="<?php echo Configure::read('Phase.rss.title') ?>" type="application/atom+xml">
+    <link href="<?php echo Configure::read('Phase.feed.url') ?>" rel="alternate" title="<?php echo Configure::read('Phase.feed.title') ?>" type="application/atom+xml">
 
     <!-- More ideas for your <head> here: h5bp.com/d/head-Tips -->
 

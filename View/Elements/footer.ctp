@@ -11,8 +11,8 @@
           <a href="http://twitter.com/<?php echo Configure::read('Phase.author.twitter') ?>/">twitter.com/<?php echo Configure::read('Phase.author.twitter') ?></a><br />
         </p>
       </div>
-      <div class="rss">
-        <a href="<?php echo Configure::read('Phase.rss.url') ?>">
+      <div class="feed">
+        <a href="<?php echo Configure::read('Phase.feed.url') ?>">
           <img src="/img/feed/feed-icon-28x28.png" alt="Subscribe to RSS Feed" />
         </a>
       </div>
