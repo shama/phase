@@ -19,7 +19,7 @@ If java is not available, phase can still be used by using the `--no-compression
 Installation
 ------------
 
-Phase uses cakephp 2.0+, and has a couple of dependencies. To install from scratch:
+Phase uses cakephp 2.0+, and also makes use of a couple of other projects. To install from scratch:
 
     mkdir hmmm-yeah.over-here
     cd hmmm-yeah.over-here
@@ -46,7 +46,7 @@ which have no impact on the resultant compressed file (formatting, comments) wil
 to re-download the same resource again if they have it in cache.
 
 Only the contents of `PhaseRoot/Site/webroot` and any urls your application references are present
-in the built version of your site. A few urls from the h5bp project are used as seeds to crawl the 
+in the built version of your site. A few urls from the h5bp project are used as seeds to crawl the
 rest of your content.
 
 Usage
@@ -66,7 +66,7 @@ For a simple intro - just dive right into the cli:
 	build   Generate a static version of your application.
 	deploy  Copy files to public server.
 	...
-	
+
 There are three subcommands, and they are listed in the order they are intended to be used. Each
 has it's own specific help.
 
@@ -78,6 +78,8 @@ A few things are currently missing but planned for:
 * Add CSS image detection (parsing of url references in css)
 * Add CSS image optimizations
 * Add CSS sprite building
+* Ignore drafts when deploying
+* Move code around a bit
 * Add test cases
 
 History
