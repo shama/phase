@@ -5,7 +5,10 @@ App::uses('AppShell', 'Console/Command');
 class ArchiveTask extends AppShell {
 
     /**
-     * Create a new draft post at todays date
+     * Keep the root of your posts dir clear by moving older posts into subfolders
+     *
+     * This has no effect on the public site, it only aids you as the author in keeping your
+     * visible recent posts list managably small
      */
     public function execute() {
         $root = Configure::read('PhasePosts');
