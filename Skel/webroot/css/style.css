@@ -237,6 +237,15 @@ td { vertical-align: top; }
 
 }
 
+a.headerAnchor, a.headerAnchor:visited {
+    margin-left: 0.5em;
+    color: #ccc;
+    text-decoration: none;
+}
+a.headerAnchor:hover {
+    color: #a00;
+}
+
 
 
 /* ==|== non-semantic helper classes ========================================
