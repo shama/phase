@@ -18,14 +18,17 @@ class PostHelper extends AppHelper {
         }
         $parsed = $this->YFM->parse($contents);
         $post += $parsed;
+
+        $post['contents'] = $this->Markdown->process($post['contents']);
+
         if (empty($post['intro'])) {
-            $post['intro'] = substr($post['contents'], 0, strpos($post['contents'], "\n", 1));
+            $plainText = strip_tags($post['contents']);
+            $post['intro'] = substr($plainText, 0, strpos($plainText, "\n", 1));
             if (strlen($post['intro']) < 200) {
-                $post['intro'] = $this->Text->truncate($post['contents'], 400);
+                $post['intro'] = $this->Text->truncate($plainText, 400);
             }
             $post['intro'] = '<p>' . $post['intro'] . '</p>';
         }
-        $post['contents'] = $this->Markdown->process($post['contents']);
 
         return $post;
     }
