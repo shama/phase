@@ -31,6 +31,12 @@ class MarkdownHelper extends AppHelper {
 	public function __construct(View $View, $settings = array()) {
         $this->settings = $this->defaultSettings + $settings;
         $this->parser = new PhaseMarkdownParser();
+        if (!empty($View->request->params['ext'])) {
+            $ext = $View->request->params['ext'];
+            if ($ext !== 'html') {
+                $this->settings['run'] = 'never';
+            }
+        }
         return parent::__construct($View, $settings);
     }
 
