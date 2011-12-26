@@ -124,6 +124,6 @@ class PhaseMarkdownParser extends MarkdownExtra_Parser {
         $id .= $suffix;
         $this->headerIds[] = $id;
 
-        return '<a class="headerAnchor" href="#' . $id . '">¶</a>';
+        return '<a class="headerAnchor" href="#' . $id . '">§</a>';
     }
 }
