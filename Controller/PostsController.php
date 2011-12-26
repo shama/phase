@@ -19,11 +19,13 @@ class PostsController extends AppController {
     public $viewClass = 'Phase';
 
     public function archives() {
-        $posts = $this->Post->findAll();
         $title_for_layout = 'All posts';
 
         if ($this->params->params['ext'] === 'xml') {
+            $posts = $this->Post->findAll(20);
             $this->viewPath = 'Posts/xml';
+        } else {
+            $posts = $this->Post->findAll();
         }
 
         $this->set(compact('posts', 'title_for_layout'));
