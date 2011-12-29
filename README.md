@@ -76,7 +76,6 @@ Roadmap
 A few things are currently missing but planned for:
 
 * Add sitemap
-* Add CSS image detection (parsing of url references in css)
 * Add CSS sprite building
 * Add image optimizations
 * Add a js search
