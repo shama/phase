@@ -83,7 +83,11 @@ class BuildTask extends AppShell {
      */
 	public function execute() {
         if (!empty($this->args[0])) {
-            $this->outputDir = $this->args[0];
+            $this->addUrl('/' . ltrim($this->args[0]));
+        }
+
+        if (!empty($this->params['output'])) {
+            $this->outputDir = $this->params['output'];
         }
 
         if (!empty($this->params['no-optimize'])) {
@@ -114,13 +118,15 @@ class BuildTask extends AppShell {
         mkdir($this->outputDir . '/img', 0777, true);
         mkdir($this->outputDir . '/js', 0777, true);
 
-        $root = Configure::read('PhaseWebroot');
-        $offset = strlen($root) - 1;
-        $folder = new Folder($root);
-        $files = $folder->findRecursive();
-        foreach($files as $file) {
-            $url = substr($file, $offset);
-            $this->processUrl($url);
+        if (empty($this->urlStack)) {
+            $root = Configure::read('PhaseWebroot');
+            $offset = strlen($root) - 1;
+            $folder = new Folder($root);
+            $files = $folder->findRecursive();
+            foreach($files as $file) {
+                $url = substr($file, $offset);
+                $this->processUrl($url);
+            }
         }
 
         $this->recurse();
@@ -138,7 +144,10 @@ class BuildTask extends AppShell {
 		$parser = parent::getOptionParser();
         $parser->description(array(
             __d('phase', 'Crawl application and create a static version of the result'),
-        ))->addArgument('path', array(
+        ))->addArgument('url', array(
+            'help' => __d('phase', 'The seed url to crawl'),
+            'required' => false
+        ))->addOption('output', array(
             'help' => __d('phase', 'Where to put the generated files, defaults to "%s"', $this->outputDir),
             'required' => false
         ))->addOption('no-optimize', array(
@@ -435,7 +444,12 @@ class BuildTask extends AppShell {
     protected function processUrl($url) {
         $this->out("Processing $url");
 
-        $contents = $this->getContents($url);
+        if (substr($url, -3) === 'css') {
+            $contents = $this->getNormalizedCss($url);
+        } else {
+            $contents = $this->getContents($url);
+        }
+
         if ($contents === false) {
             return;
         }
@@ -480,14 +494,10 @@ class BuildTask extends AppShell {
      * output folder.
      *
      * Track and report 404s so that they can be corrected
-     *
-     * @param array $stack seed urls - if not passed the property seedUrls is used
      */
-    protected function recurse($stack = null) {
-        if ($stack === null) {
+    protected function recurse() {
+        if (!$this->urlStack) {
             $this->urlStack = $this->seedUrls;
-        } else {
-            $this->urlStack = $stack;
         }
 
         while($this->urlStack) {
