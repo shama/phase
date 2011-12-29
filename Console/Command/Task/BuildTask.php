@@ -155,6 +155,24 @@ class BuildTask extends AppShell {
 	}
 
     /**
+     * addUrl to the crawl stack
+     *
+     * Unless it's already been processed, or is in already in the stack
+     *
+     * @param mixed $url
+     */
+    protected function addUrl($url) {
+        if (
+            !empty($this->fourOFours[$url]) ||
+            file_exists($this->outputDir . $url) ||
+            in_array($url, $this->urlStack)
+        ) {
+            return false;
+        }
+        $this->urlStack[] = $url;
+    }
+
+    /**
      * compress css using yui compressor
      *
      * if a filename is passed - it is used as the input, otherwise the contents are used
@@ -299,7 +317,11 @@ class BuildTask extends AppShell {
 
             if (empty($this->concatStack[$id])) {
                 foreach($files as $url) {
-                    $contents .= $this->getContents($url);
+                    if ($type === 'css') {
+                        $contents .= $this->getNormalizedCss($url);
+                    } else {
+                        $contents .= $this->getContents($url);
+                    }
                 }
                 $hash = md5($contents);
                 $url = "/$type/$hash.min.$type";
@@ -350,6 +372,48 @@ class BuildTask extends AppShell {
             $this->fourOFours[$url] = array();
         }
         return false;
+    }
+
+    /**
+     * getNormalizedCss
+     *
+     * Get the css and normalize to an absolute url any url references
+     * Therefore for /css/foo.css, it converts:
+     *  img/foo.png to /css/img/foo.png
+     *  ../img/foo.png to /img/img/foo.png
+     *
+     * @param string $url
+     */
+    protected function getNormalizedCss($url = '/') {
+        $contents = $this->getContents($url);
+
+        preg_match_all('@url\(["\']?(.*?)["\']?\)@', $contents, $matches);
+        if ($matches[0]) {
+        }
+        $base = dirname($url) . '/';
+        foreach($matches[1] as $i => $match) {
+            if (strpos($match, '://') || strpos($match, '//') === 0) {
+                continue;
+            }
+            if ($match[0] === '/') {
+                $this->addUrl($match);
+                continue;
+            }
+
+            $normalized = $base . $match;
+            while(strpos($normalized, '../')) {
+                $normalizedReplaced = preg_replace('@[^/\.]+/\.\./@', '', $normalized);
+                if ($normalizedReplaced === $normalized) {
+                    break;
+                }
+                $normalized = $normalizedReplaced;
+            }
+            $this->addUrl($normalized);
+            $find = $matches[0][$i];
+            $replace = str_replace($match, $normalized, $find);
+            $contents = str_replace($find, $replace, $contents);
+        }
+        return $contents;
     }
 
     /**
@@ -426,13 +490,7 @@ class BuildTask extends AppShell {
                 continue;
             }
             foreach($return['urls'] as $subUrl) {
-                if (!empty($this->fourOFours[$subUrl])) {
-                    $this->fourOFours[$subUrl][] = $url;
-                }
-                if (file_exists($this->outputDir . $subUrl) || in_array($subUrl, $this->urlStack)) {
-                    continue;
-                }
-                $this->urlStack[] = $subUrl;
+                $this->addUrl($subUrl);
             }
         }
     }
