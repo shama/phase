@@ -380,7 +380,7 @@ class BuildTask extends AppShell {
      * Get the css and normalize to an absolute url any url references
      * Therefore for /css/foo.css, it converts:
      *  img/foo.png to /css/img/foo.png
-     *  ../img/foo.png to /img/img/foo.png
+     *  ../img/foo.png to /img/foo.png
      *
      * @param string $url
      */
