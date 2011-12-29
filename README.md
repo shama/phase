@@ -75,7 +75,6 @@ Roadmap
 
 A few things are currently missing but planned for:
 
-* -Add automatic ids to headers (markdown helper)-
 * Add sitemap
 * Add CSS image detection (parsing of url references in css)
 * Add CSS sprite building
