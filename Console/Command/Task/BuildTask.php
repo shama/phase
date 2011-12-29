@@ -119,6 +119,7 @@ class BuildTask extends AppShell {
         mkdir($this->outputDir . '/js', 0777, true);
 
         if (empty($this->urlStack)) {
+            $this->urlStack = $this->seedUrls;
             $root = Configure::read('PhaseWebroot');
             $offset = strlen($root) - 1;
             $folder = new Folder($root);
