@@ -410,9 +410,16 @@ class BuildTask extends AppShell {
             }
             $this->addUrl($normalized);
             $find = $matches[0][$i];
+
+            /* TODO - where should this go
+            if (strpos($normalized, '/css/') === 0) {
+                $normalized = substr($normalized, 5);
+            }
+            */
             $replace = str_replace($match, $normalized, $find);
             $contents = str_replace($find, $replace, $contents);
         }
+
         return $contents;
     }
 
