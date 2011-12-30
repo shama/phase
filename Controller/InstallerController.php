@@ -33,6 +33,14 @@ title: First post
 
 This is an example post - edit/rename/delete however you want. The readme has also been converted
 to a post - it may contain useful syntax examples if you're unfamiliar with markdown.
+
+First steps:
+
+* Open Config/core.php and set the config settings used by Phase.
+* Use the phase cli ( $ Console/cake phase write ) to create your first real post.
+* Optionally modify the design to your liking
+* Start writing
+
 ";
         $filename = date('Y-m-d') . '-first-post.md';
         file_put_contents(Configure::read('PhasePosts') . $filename, $contents);
