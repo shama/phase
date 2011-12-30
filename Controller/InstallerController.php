@@ -12,8 +12,33 @@ class InstallerController extends AppController {
         $folder = new Folder($source);
         $folder->copy($target);
 
-        $this->Session->flash("Contents of $source copied to $target");
-        $this->redirect('/phase/about');
+        $source = APP . 'Skel' . DS . 'webroot';
+        $target = WWW_ROOT;
+        $folder = new Folder($source);
+        $folder->copy($target);
+
+        $contents = "---
+layout: post
+title: About Phase
+---
+";
+        $contents .= file_get_contents(APP . 'README.md');
+        $filename = date('Y-m-d', time() - 60*60*24) . '-about-phase.md';
+        file_put_contents(Configure::read('PhasePosts') . $filename, $contents);
+
+        $contents = "---
+layout: post
+title: First post
+---
+
+This is an example post - edit/rename/delete however you want. The readme has also been converted
+to a post - it may contain useful syntax examples if you're unfamiliar with markdown.
+";
+        $filename = date('Y-m-d') . '-first-post.md';
+        file_put_contents(Configure::read('PhasePosts') . $filename, $contents);
+
+        $this->Session->setFlash("Contents of $source copied to $target");
+        $this->redirect('/');
     }
 
     function about() {

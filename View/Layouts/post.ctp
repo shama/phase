@@ -13,8 +13,8 @@
         <a href="#disqus_thread">Show comments</a>
     </header>
 
+    <?php echo $this->Session->flash(); ?>
     <div role="main">
-        <?php echo $this->Session->flash(); ?>
         <?php echo $content_for_layout; ?>
         <div id="disqus_thread"></div>
     </div>

@@ -25,8 +25,8 @@ Router::parseExtensions('xml', 'html');
 
 Router::connect('/phase/about', array('controller' => 'installer', 'action' => 'about'));
 if (!is_dir(Configure::read('PhaseRoot'))) {
-    Router::connect('/*', array('controller' => 'installer', 'action' => 'about'));
     Router::connect('/go', array('controller' => 'installer', 'action' => 'go'));
+    Router::connect('/*', array('controller' => 'installer', 'action' => 'about'));
 } else {
     Router::connect('/', array('controller' => 'posts', 'action' => 'home'));
     Router::connect(

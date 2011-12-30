@@ -19,7 +19,7 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
-Configure::write('Phase.site.name', '');
+Configure::write('Phase.site.name', 'Phase');
 Configure::write('Phase.site.domain', '');
 
 Configure::write('Phase.feed.id', '');

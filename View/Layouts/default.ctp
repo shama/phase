@@ -3,8 +3,8 @@
   <div class="site">
     <?php echo $this->element('header') ?>
 
+    <?php echo $this->Session->flash(); ?>
     <div role="main">
-        <?php echo $this->Session->flash(); ?>
         <?php echo $content_for_layout; ?>
     </div>
 
