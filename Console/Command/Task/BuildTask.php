@@ -39,7 +39,7 @@ class BuildTask extends AppShell {
     /**
      * concatStack
      *
-     * Array of id => hashs used to know which asset packets have already been processed
+     * Array of id => hashes used to know which asset packets have already been processed
      */
     protected $concatStack = array();
 
@@ -78,7 +78,7 @@ class BuildTask extends AppShell {
 	}
 
     /**
-     * Wipe the output diretory and repopulate it using what you can see
+     * Wipe the output directory and repopulate it using what you can see
      * browsing your development install as the input
      */
 	public function execute() {
@@ -256,10 +256,10 @@ class BuildTask extends AppShell {
     }
 
     /**
-     * concatJs - processing the head and body seperately
+     * concatJs - processing the head and body separately
      *
      * Parse out any local scripts, concat them into packets, minify and replace references
-     * The class atribute is used to allow for the possibility of bundling js files into multiple
+     * The class attribute is used to allow for the possibility of bundling js files into multiple
      * packets; if a script tag is not text/javascript it's ignored
      *
      * @param string $html

@@ -24,7 +24,7 @@ class PhaseShell extends AppShell {
             'help' => __d('phase', 'Create a new post.'),
             'parser' => $this->Write->getOptionParser()
         ))->addSubcommand('build', array(
-            'help' => __d('phase', 'Generate a static version of your applicaction.'),
+            'help' => __d('phase', 'Generate a static version of your application.'),
             'parser' => $this->Build->getOptionParser()
         ))->addSubcommand('deploy', array(
             'help' => __d('phase', 'Copy files to public server.'),

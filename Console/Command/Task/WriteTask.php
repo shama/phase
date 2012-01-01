@@ -60,7 +60,7 @@ EOT;
         $parser->description(array(
             __d('phase', 'Crete a new draft post at today\'s date'),
         ))->addOption('tags', array(
-            'help' => __d('phase', 'Comma seperated list of tags for this post'),
+            'help' => __d('phase', 'Comma separated list of tags for this post'),
         ))->addArgument('title', array(
             'help' => __d('phase', 'The title for the post'),
             'required' => true

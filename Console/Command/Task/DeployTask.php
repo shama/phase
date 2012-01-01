@@ -30,7 +30,7 @@ class DeployTask extends AppShell {
 	}
 
     /**
-     * Wipe the output diretory and repopulate it using what you can see
+     * Wipe the output directory and repopulate it using what you can see
      * browsing your development install as the input
      */
     public function execute() {

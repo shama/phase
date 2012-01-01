@@ -5,7 +5,7 @@ App::uses('View', 'View');
 class PhaseView extends View {
 
 /**
- * Overriden to not force inflecting the filename
+ * Overridden to not force inflecting the filename
  *
  * @param string $name Controller action to find template filename for
  * @return string Template filename

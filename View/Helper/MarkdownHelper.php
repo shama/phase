@@ -66,7 +66,7 @@ class MarkdownHelper extends AppHelper {
 /**
  * PhaseMarkdownParser
  *
- * Overriden to inject automatic header anchor links
+ * Overridden to inject automatic header anchor links
  */
 class PhaseMarkdownParser extends MarkdownExtra_Parser {
 
